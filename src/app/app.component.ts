@@ -16,7 +16,7 @@ export class AppComponent implements OnInit {
     this.authService.login('test@test.com','parola123').subscribe(response=>{
       console.log('Login succesfull:', response);
     }, error=>{
-      console.log('Fail!', error);
+      console.log('Fail to login!', error);
     })
     
   }
