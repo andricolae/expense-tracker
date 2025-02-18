@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AuthService } from './auth.service';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +8,16 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'expense-tracker';
+  constructor(private authService: AuthService){}
+
+  ngOnInit(): void {
+    this.authService.login('test@test.com','parola123').subscribe(response=>{
+      console.log('Login succesfull:', response);
+    }, error=>{
+      console.log('Fail!', error);
+    })
+    
+  }
 }
