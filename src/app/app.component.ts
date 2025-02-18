@@ -13,11 +13,16 @@ export class AppComponent implements OnInit {
   constructor(private authService: AuthService){}
 
   ngOnInit(): void {
+    this.authService.signup('test@test.com','parola123').subscribe(response=>{
+      console.log('Login succesfull:', response);
+    }, error=>{
+      console.log('Fail to signup!', error);
+    })
+
     this.authService.login('test@test.com','parola123').subscribe(response=>{
       console.log('Login succesfull:', response);
     }, error=>{
       console.log('Fail to login!', error);
     })
-    
   }
 }
