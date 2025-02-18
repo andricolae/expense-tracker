@@ -15,10 +15,12 @@ interface AuthResponseData {
 
 export class AuthService {
 
+       private apiKey = "AIzaSyDmGuH_3Nb-RzBp0pS1xKA5wmYdbVNuruc";
+
     constructor(private http: HttpClient) { }
 
     login(email: string, password: string) {
-        return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[API_KEY]', {
+        return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${this.apiKey}', {
             email: email,
             password: password,
             returnSecureToken: true
