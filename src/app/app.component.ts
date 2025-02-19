@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TrackerComponent } from "./pages/expense-tracker/tracker/tracker.component";
+import { TrackerComponent } from "./pages/tracker/tracker.component";
 
 @Component({
   selector: 'app-root',
