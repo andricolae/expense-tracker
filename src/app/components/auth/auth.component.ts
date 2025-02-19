@@ -27,8 +27,17 @@ export class AuthComponent {
     this.isRegistering = !this.isRegistering;
   }
 
-  onSubmit(){
-    
+  onSubmit() {
+    if (this.isRegistering) {
+      //sign up user
+      this.authService.signup(this.email, this.password).subscribe({
+        next: (response => {
+          console.log('User registered', response);
+          this.isRegistering = false;
+        })
+      })
+    }
+
   }
 
 }
