@@ -37,6 +37,14 @@ export class AuthService {
 
     }
 
+    resetPassword(email: string) {
+        return this.http.post(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${this.apiKey}`, {
+            requestType: "PASSWORD_RESET",
+            email: email
+        })
+
+    }
+
 
 
 }
