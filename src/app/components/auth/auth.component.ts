@@ -37,6 +37,15 @@ export class AuthComponent {
         })
       })
     }
+    else{
+      //log in user
+      this.authService.login(this.email, this.password).subscribe({
+        next: (response=>{
+          console.log('User logged in!', response);
+          this.router.navigate(['/home']);
+        })
+      })
+    }
 
   }
 
