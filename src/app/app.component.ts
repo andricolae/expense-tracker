@@ -24,5 +24,11 @@ export class AppComponent implements OnInit {
     }, error=>{
       console.log('Fail to login!', error);
     })
+
+    this.authService.resetPassword('test@test.com').subscribe(response=>{
+      console.log("Password reset mail sent succsessfully",response);
+    }, error=>{
+      console.log('Fail to sent verification mail!', error);
+    })
   }
 }
