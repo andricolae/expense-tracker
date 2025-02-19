@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TrackerComponent } from "./pages/expense-tracker/tracker/tracker.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, TrackerComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
