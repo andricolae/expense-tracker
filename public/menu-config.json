@@ -7,9 +7,7 @@
     "sticky": true
   },
   "menu": [
-  { "name": "menu.Home", "route": "/home", "icon": "fas fa-home", "enabled": true },
-  { "name": "menu.About Us", "route": "/about-us", "icon": "fas fa-info-circle", "enabled": true },
-  { "name": "menu.Services", "route": "/services", "icon": "fas fa-concierge-bell", "enabled": true },
-  { "name": "menu.Contact", "route": "/contact", "icon": "fas fa-envelope", "enabled": true }
+  { "name": "Home", "route": "/home", "icon": "fas fa-home", "enabled": true },
+  { "name": "About Us", "route": "/about-us", "icon": "fas fa-info-circle", "enabled": true }
   ]
 }
