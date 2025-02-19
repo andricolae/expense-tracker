@@ -1,21 +1,34 @@
 <div class="background-container">
   <div class="auth-container">
-    
-<form class="form">
-  <h2 id="heading">{{ isRegistering ? "Register" : "Login" }}</h2>
-  <input class="input" name="email" placeholder="Email" type="email">
-  <input class="input" name="password" placeholder="Password" type="password">
-  
-  <button class="button-confirm">Login</button>
-  <div *ngIf="!isRegistering">
-    <p>
-      <a (click)="toggleMode()">
-        {{ isRegistering ? "Already have an account? Login" : "No account? Sign up." }}
-      </a>
-    </p>
+    <form class="form" (ngSubmit)="onSubmit()">
+      <h2 id="heading">{{ isRegistering ? "Register" : "Login" }}</h2>
+      <input
+        class="input"
+        [(ngModel)]="email"
+        name="email"
+        placeholder="Email"
+        type="email"
+      />
+      <input
+        class="input"
+        [(ngModel)]="password"
+        name="password"
+        placeholder="Password"
+        type="password"
+      />
+
+      <button class="button-confirm">Login</button>
+      <div *ngIf="!isRegistering">
+        <p>
+          <a (click)="toggleMode()">
+            {{
+              isRegistering
+                ? "Already have an account? Login"
+                : "No account? Sign up."
+            }}
+          </a>
+        </p>
+      </div>
+    </form>
   </div>
-
-</form>
-
-   
 </div>
