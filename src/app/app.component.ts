@@ -10,19 +10,25 @@ import { AuthService } from './auth.service';
 })
 export class AppComponent implements OnInit {
   title = 'expense-tracker';
-  constructor(private authService: AuthService){}
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
-    this.authService.signup('test@test.com','parola123').subscribe(response=>{
+    this.authService.signup('test@test.com', 'parola123').subscribe(response => {
       console.log('Login succesfull:', response);
-    }, error=>{
+    }, error => {
       console.log('Fail to signup!', error);
     })
 
-    this.authService.login('test@test.com','parola123').subscribe(response=>{
+    this.authService.login('test@test.com', 'parola123').subscribe(response => {
       console.log('Login succesfull:', response);
-    }, error=>{
+    }, error => {
       console.log('Fail to login!', error);
+    })
+
+    this.authService.resetPassword("test@test.com").subscribe(response => {
+      console.log('Password reset email sent successfully!', response);
+    }, error => {
+      console.log('Fail to send reset password email!', error);
     })
   }
 }
