@@ -1,0 +1,13 @@
+{
+  "header": {
+    "sticky": true
+  },
+  "footer": {
+    "enabled": true,
+    "sticky": true
+  },
+  "menu": [
+  { "name": "Home", "route": "/home", "icon": "fas fa-home", "enabled": true },
+  { "name": "About Us", "route": "/about-us", "icon": "fas fa-info-circle", "enabled": true }
+  ]
+}
