@@ -1,33 +1,21 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
+import { provideRouter, Routes } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 import { AppComponent } from './app/app.component';
-import { provideHttpClient, withInterceptorsFromDi, HttpClient } from '@angular/common/http';
-import { ErrorHandler, importProvidersFrom } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { routes } from './app/app.routes';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { HomeComponent } from './app/pages/home/home.component';
+import { AuthComponent } from './app/components/auth/auth.component';
 
 
-export function createTranslateLoader(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
+
+const routes: Routes = [
+  { path: 'home', component: HomeComponent },
+  { path: '', component: HomeComponent },
+  { path: 'auth', component: AuthComponent },
+];
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
-
-    importProvidersFrom([
-
-      TranslateModule.forRoot({
-        loader: {
-          provide: TranslateLoader,
-          useFactory: (createTranslateLoader),
-          deps: [HttpClient]
-        },
-        // defaultLanguage: 'en',
-      }),
-    ]),
+    provideHttpClient(),
   ]
 });
