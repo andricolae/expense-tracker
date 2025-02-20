@@ -4,16 +4,23 @@ import { provideHttpClient } from '@angular/common/http';
 import { AppComponent } from './app/app.component';
 import { HomeComponent } from './app/pages/home/home.component';
 import { AuthComponent } from './app/components/auth/auth.component';
+import { CrudComponent } from './app/pages/crud/crud.component';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { firebaseConfig } from './environment';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: '', component: HomeComponent },
   { path: 'auth', component: AuthComponent },
+  { path: 'crud', component: CrudComponent },
 ];
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     provideHttpClient(),
+        provideFirebaseApp(() => initializeApp(firebaseConfig)),
+        provideFirestore(() => getFirestore())
   ],
 }).catch(err => console.error(err));
