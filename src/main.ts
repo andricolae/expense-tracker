@@ -6,8 +6,6 @@ import { HomeComponent } from './app/pages/home/home.component';
 import { AuthComponent } from './app/components/auth/auth.component';
 import { TrackerComponent } from './app/pages/tracker/tracker.component';
 
-
-
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: '', component: HomeComponent },

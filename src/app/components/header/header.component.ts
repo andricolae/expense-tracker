@@ -21,6 +21,21 @@ export class HeaderComponent {
     private router: Router,
   ) {}
 
+  ngOnInit(): void {
+  
+      this.loadMenu();
+    }
+
+  private loadMenu(): void {
+    this.configService.getConfig().subscribe((config) => {
+      this.menu = config.menu.map(item => {
+        
+        console.log("Changed menu items routes")
+        return item;
+      });
+    });
+  }
+
   goToLogin(): void {
     this.router.navigate(['/auth']);
   }
