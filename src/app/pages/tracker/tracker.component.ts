@@ -8,6 +8,6 @@ import { Component } from '@angular/core';
   styleUrl: './tracker.component.css'
 })
 export class TrackerComponent {
-  days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
-  selectedDay = "MON";
+  days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+  selectedDay = "Monday";
 }

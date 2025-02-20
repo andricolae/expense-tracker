@@ -1,22 +1,32 @@
-<div class="container">
-    <div class="tabs">
-        <button *ngFor="let day of days" class="tab-buttons" [class.active]="selectedDay === day" (click)="selectedDay = day" >{{ day }} </button>
+<div class="background-container">
+    <div class="overlay">
+      <div class="card">
+        <div class="head">Expense Tracker</div>
+        <div class="content">
+          <div class="tabs">
+            <button *ngFor="let day of days" class="tab-button" [class.active]="selectedDay === day" (click)="selectedDay = day">
+              {{ day }}
+            </button>
+          </div>
+  
+          <!-- Expense Form -->
+          <div class="expense-form">
+            <h3>Expenses on {{ selectedDay }}</h3>
+            <label>Category:</label>
+            <select>
+              <option>Food</option>
+              <option>Transport</option>
+              <option>Entertainment</option>
+            </select>
+  
+            <label>Amount:</label>
+            <input type="number" placeholder="Enter an amount"/>
+  
+            <button class="button">Add Expense</button>
+            <button class="button">Save</button>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- expense form -->
-     <div class="expense-form">
-        <h3>Expenses on {{ selectedDay }}</h3>
-        <label>Category: </label>
-        <select>
-            <option>Food</option>
-            <option>Transport</option>
-            <option>Entertainment</option>
-        </select>
-
-        <label>Amount: </label>
-        <input type="number" placeholder="Enter an amount"/>
-
-        <button class="add-expense-button">Add expense</button>
-        <button class="save-button">Save</button>
-     </div>
-</div>
+  </div>
+  
