@@ -42,6 +42,11 @@ export class DummyCrudComponent {
     }
   }
 
+  /**
+   * Returns all the entries for a specific day
+   * @param day - The day of the week (e.g., 'monday', 'tuesday')
+   * @returns List of objects {category, amount}
+   */
   async getByDay(day: string) {
     try {
       const querySnapshot = await getDocs(collection(this.firestore, day));
@@ -57,6 +62,12 @@ export class DummyCrudComponent {
     }
   }
 
+  /**
+   * Returns all the entries for a specific day and a specific category
+   * @param day - The day of the week (e.g., 'monday', 'tuesday')
+   * @param category - The category for which we are searching the entries
+   * @returns List of objects {category, amount}
+   */
   async getByDayAndCategory(day: string, category: string) {
     try {
       const q = query(
@@ -76,6 +87,11 @@ export class DummyCrudComponent {
     }
   }
 
+  /**
+   * Returns all the entries for a specific category, no matter the day
+   * @param category - The category for which we are searching the entries
+   * @returns List of objects {category, amount}
+   */
   async getByCategoryAllDays(category: string) {
     try {
       const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -103,6 +119,12 @@ export class DummyCrudComponent {
     }
   }
 
+  /**
+   * Deletes an item
+   * @param day - The day of the week (e.g., 'monday', 'tuesday')
+   * @param id - The id of the entry
+   * @returns Boolean wether the delete has been successful
+   */
   async deleteItem(day: string, id: string) {
     try {
       await deleteDoc(doc(this.firestore, day, id));
@@ -114,6 +136,13 @@ export class DummyCrudComponent {
     }
   }
 
+  /**
+   * Deletes an entry
+   * @param day - The day of the week (e.g., 'monday', 'tuesday')
+   * @param id - The id of the entry
+   * @param newData - The new data to be updated (optional category and optional amount)
+   * @returns Boolean wether the update has been successful
+   */
   async updateItem(day: string, id: string, newData: { category?: string, amount?: string }) {
     try {
       await updateDoc(doc(this.firestore, day, id), newData);
