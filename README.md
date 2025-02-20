@@ -1,6 +1,6 @@
 # ExpenseTracker
 
-Deployed at: https://expense-tracker-phi-olive.vercel.app
+Deployed at: [vercel.app](https://expense-tracker-ntt.vercel.app/)
 
 ## Development server
 
