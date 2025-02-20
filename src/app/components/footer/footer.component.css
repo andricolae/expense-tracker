@@ -1,0 +1,41 @@
+footer {
+  font-family: 'Rubik', sans-serif;
+  background-color: #0c3a9a;
+  color: white;
+  padding: 0px 20px;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+}
+
+footer .footer-text {
+  text-align: left; 
+}
+
+footer .social-icons {
+  display: flex;
+  gap: 15px; 
+}
+
+footer.sticky {
+  position: fixed;
+  bottom: 0;
+  left: 0; 
+  width: 100%;
+}
+
+footer.transparent {
+  background-color: transparent;
+}
+
+@media (max-width: 768px) {
+  footer {
+    padding: 10px;
+  }
+}
+ul {
+  list-style: none;
+}
