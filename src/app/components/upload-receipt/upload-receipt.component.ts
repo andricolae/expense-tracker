@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { OcrService } from '../../services/ocr.service';
+import { GeminiService } from '../../services/gemini.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,10 +12,13 @@ import { CommonModule } from '@angular/common';
 export class UploadReceiptComponent {
   imageUrl: string | ArrayBuffer | null = null;
   extractedText: string = '';
-  extractedExpenses: string[] = [];
+  extractedExpenses: { name: string; price: number }[] = [];
   selectedFile: File | null = null;
 
-  constructor(private ocrService: OcrService) {}
+  constructor(
+    private ocrService: OcrService,
+    private geminiService: GeminiService
+  ) {}
 
   onFileSelected(event: Event): void {
     const target = event.target as HTMLInputElement;
@@ -32,21 +36,33 @@ export class UploadReceiptComponent {
 
     const reader = new FileReader();
     reader.onload = () => {
-      const base64Image = (reader.result as string).split(',')[1]; // Eliminăm headerul
+      const base64Image = (reader.result as string).split(',')[1];
       this.ocrService.extractText(base64Image).subscribe((response) => {
         if (response.responses && response.responses.length > 0) {
           this.extractedText =
             response.responses[0].fullTextAnnotation?.text || '';
-          this.extractedExpenses = this.extractExpenses(this.extractedText);
+          this.sendToGemini(this.extractedText);
         }
       });
     };
     reader.readAsDataURL(this.selectedFile);
   }
 
-  extractExpenses(text: string): string[] {
-    const regex = /\d+[\.,]?\d{0,2}\s?(?:RON|lei)?/g;
-    const matches = text.match(regex) || [];
-    return matches.map((match) => match.replace(',', '.'));
+  sendToGemini(ocrText: string): void {
+    this.geminiService.extractExpenses(ocrText).subscribe((response) => {
+      try {
+        const rawText = response.candidates[0].content.parts[0].text;
+
+        // Eliminăm spațiile inutile și verificăm dacă răspunsul începe cu [
+        if (!rawText.trim().startsWith('[')) {
+          throw new Error('Răspunsul nu este JSON valid!');
+        }
+
+        this.extractedExpenses = JSON.parse(rawText);
+      } catch (error) {
+        console.error('Eroare la parsarea răspunsului Gemini:', error);
+        this.extractedExpenses = []; // Evităm să avem date invalide în UI
+      }
+    });
   }
 }
