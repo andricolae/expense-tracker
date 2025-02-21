@@ -1,32 +1,65 @@
 <div class="background-container">
     <div class="overlay">
-      <div class="card">
-        <div class="head">Expense Tracker</div>
-        <div class="content">
-          <div class="tabs">
-            <button *ngFor="let day of days" class="tab-button" [class.active]="selectedDay === day" (click)="selectedDay = day">
-              {{ day }}
-            </button>
-          </div>
-  
-          <!-- Expense Form -->
-          <div class="expense-form">
-            <h3>Expenses on {{ selectedDay }}</h3>
-            <label>Category:</label>
-            <select>
-              <option>Food</option>
-              <option>Transport</option>
-              <option>Entertainment</option>
-            </select>
-  
-            <label>Amount:</label>
-            <input type="number" placeholder="Enter an amount"/>
-  
-            <button class="button">Add Expense</button>
-            <button class="button">Save</button>
-          </div>
+        <div class="card">
+            <div class="head">{{ showWeeklyOverview ? 'Weekly Overview' : 'Expense Tracker' }}</div>
+            <div class="content">
+
+                <ng-container *ngIf="!showWeeklyOverview">
+                    <div class="tabs">
+                        <button *ngFor="let day of days" class="tab-button" [class.active]="selectedDay === day"
+                            (click)="selectedDay = day">
+                            {{ day }}
+                        </button>
+                    </div>
+
+                    <!-- Expense Form -->
+                    <div class="expense-form">
+                        <h3>Expenses on {{ selectedDay }}</h3>
+
+                        <label>Expense Name:</label>
+                        <input type="text" placeholder="Enter expense name" />
+
+                        <label>Category:</label>
+                        <div class="category-container">
+                            <select>
+                                <option>Select Category</option>
+                                <option *ngFor="let category of categories">{{ category }}</option>
+                            </select>
+                            <button class="add-category-button" (click)="toggleCategoryPopup()">+</button>
+                        </div>
+
+                        <div *ngIf="showCategoryPopup" class="category-popup-overlay">
+                            <div class="category-popup">
+                                <h3>Add New Category</h3>
+                                <input type="text" [(ngModel)]="newCategory" placeholder="Enter new category" />
+                                <button class="button" (click)="addCategory()">Add</button>
+                                <button class="button cancel-button" (click)="toggleCategoryPopup()">Cancel</button>
+                            </div>
+                        </div>
+
+                        <label>Amount:</label>
+                        <input type="number" placeholder="Enter an amount" />
+
+                        <button class="button">Add Expense</button>
+
+                        <button class="button">Save</button>
+                    </div>
+
+                    <button class="weekly-overview-button" (click)="toggleWeeklyOverview()">Weekly Overview</button>
+                </ng-container>
+                <ng-container *ngIf="showWeeklyOverview">
+                    <h2>Total Weekly Expenses: {{ getTotalWeeklyExpenses() }} </h2>
+
+                    <ul class="week-summary">
+                        <li *ngFor="let day of days">
+                            {{ day }}: {{ getTotalForDay(day) }}
+                        </li>
+                    </ul>
+
+                    <button class="button" (click)="toggleWeeklyOverview()">Back to Tracker</button>
+                </ng-container>
+
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-  
+</div>
