@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../enviroments/enviroments';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +33,23 @@ export class GeminiService {
               - "Diverse" (Sacoșe, Pungi, Articole neclasificate)
   
               ⚠️ ATENȚIE: Răspunde DOAR cu JSON valid, fără niciun alt caracter în plus. Nu include ghilimele externe.`,
+            },
+          ],
+        },
+      ],
+    };
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<any>(this.apiUrl, requestBody, { headers });
+  }
+
+  sendMessage(message: string): Observable<any> {
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `Ești un asistent financiar. Răspunde la întrebările despre educație financiară într-un mod clar și prietenos. Întrebarea utilizatorului este: "${message}"`,
             },
           ],
         },
