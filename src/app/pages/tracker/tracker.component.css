@@ -1,0 +1,382 @@
+.background-container {
+    background-image: url('../../../../public/homeBackground.jpg');
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    z-index: -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    font-family: Montserrat, sans-serif;
+    width: 600px;
+    height: 550px;
+    background: #669cff;
+    border: 3px solid #000000;
+    box-shadow: 12px 12px 0 #000000;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.head {
+    font-family: Montserrat, sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    border: 2px solid #000000;
+    width: 96%;
+    height: 40px;
+    background: #ffffff;
+    padding: 8px 12px;
+    color: #000000;
+    border-bottom: 3px solid #000000;
+    text-align: center;
+}
+
+.content {
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.tab-button {
+    font-family: Montserrat, sans-serif;
+    padding: 8px 8px;
+    border: 3px solid #000000;
+    box-shadow: 3px 3px 0 #000000;
+    background: #ffffff;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 0 5px;
+}
+
+.tab-button.active {
+    background: #89d3ee;
+}
+
+.tab-button:hover {
+    translate: 1.5px 1.5px;
+    box-shadow: 1.5px 1.5px 0 #000000;
+}
+
+.tab-button:active {
+    translate: 3px 3px;
+    box-shadow: 0 0 0 #000000;
+}
+
+.expense-form {
+    padding: 10px;
+    background: #fff;
+    border: 3px solid #000;
+    box-shadow: 5px 5px 0 #000;
+    width: 97%;
+    height: 340px;
+}
+
+.expense-form h3 {
+    font-family: Montserrat, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+.expense-form label {
+    font-family: Montserrat, sans-serif;
+    display: block;
+    margin-top: 5px;
+    font-size: 18px;
+}
+
+.expense-form select {
+    font-family: Montserrat, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    padding: 5px;
+    border: 3px solid #000;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.expense-form select option {
+    font-family: Montserrat, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    background: #ffffff;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.expense-form select:hover {
+    background: #89d3ee;
+}
+
+.expense-form input {
+    font-family: Montserrat, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    width: 97%;
+    padding: 5px;
+    border: 3px solid #000;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.button {
+    padding: 5px 10px;
+    margin-top: 10px;
+    border: 3px solid #000000;
+    box-shadow: 3px 3px 0 #000000;
+    font-weight: 750;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.button:hover {
+    translate: 1.5px 1.5px;
+    box-shadow: 1.5px 1.5px 0 #000000;
+    background: #89d3ee;
+}
+
+.button:active {
+    translate: 3px 3px;
+    box-shadow: 0 0 0 #000000;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+}
+
+.weekly-overview-button {
+    margin-top: 15px;
+    padding: 10px 12px;
+    width: 100%;
+    font-size: 14px;
+    font-weight: bold;
+    background: #ffffff;
+    border: 3px solid #000;
+    box-shadow: 3px 3px 0 #000;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.weekly-overview-button:hover {
+    background: #89d3ee;
+    translate: 1.5px 1.5px;
+    box-shadow: 1.5px 1.5px 0 #000;
+}
+
+.weekly-overview-button:active {
+    translate: 3px 3px;
+    box-shadow: 0 0 0 #000;
+}
+
+.category-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.category-popup {
+    width: 320px;
+    padding: 20px;
+    background: #fec7a5;
+    border: 3px solid #000;
+    box-shadow: 8px 8px 0 #000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+}
+
+.category-popup h3 {
+    font-family: Montserrat, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.category-popup input {
+    width: 95%;
+    padding: 8px;
+    border: 2px solid #000;
+}
+
+.cancel-button {
+    background: #f15e4b;
+    color: black;
+}
+
+.cancel-button:hover {
+    background: #b53827;
+}
+
+.week-summary {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.add-category-button {
+    border-radius: 90px;
+}
+
+.week-summary li {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px;
+    background: #fff;
+    border: 3px solid #000;
+    box-shadow: 3px 3px 0 #000;
+    margin-bottom: 5px;
+}
+
+@media screen and (max-width: 768px) {
+    .background-container {
+        background-image: none;
+        background-color: #fec7a5;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 70px;
+        overflow-y: auto;
+    }
+
+    body {
+        overflow-y: auto;
+        height: 100vh;
+    }
+
+    html,
+    body {
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    .card {
+        width: 70%;
+        max-width: 400px;
+        padding: 10px;
+        height: auto;
+        min-height: auto;
+        margin-right: 0;
+        box-shadow: 6px 6px 0 #000000;
+    }
+
+    .head {
+        font-size: 18px;
+        padding: 5px;
+    }
+
+    .tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .tab-button {
+        flex: 1 1 30%;
+        min-width: 40px;
+        font-size: 10px;
+        padding: 6px;
+        margin: 2px;
+    }
+
+    .expense-form {
+        width: 93%;
+        height: auto;
+        padding: 8px;
+    }
+
+    .expense-form h3 {
+        font-size: 15px;
+        margin: 6px 0;
+    }
+
+    .expense-form label {
+        font-size: 12px;
+    }
+
+    .expense-form input,
+    .expense-form select {
+        font-size: 10px;
+        width: 90%;
+    }
+
+    .button {
+        padding: px;
+        font-size: 14px;
+    }
+
+    .category-popup {
+        width: 70%;
+        max-width: 300px;
+        padding: 10px;
+    }
+
+    .week-summary li {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .weekly-overview-button {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+}
+
+@media screen and (max-width: 376px) {
+    .background-container {
+        background-image: none;
+        background-color: #fec7a5;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 150px;
+        overflow-y: auto;
+    }
+}
