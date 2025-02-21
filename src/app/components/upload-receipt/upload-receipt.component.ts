@@ -59,6 +59,7 @@ export class UploadReceiptComponent {
         }
 
         this.extractedExpenses = JSON.parse(rawText);
+        console.log(this.extractedExpenses);
       } catch (error) {
         console.error('Eroare la parsarea răspunsului Gemini:', error);
         this.extractedExpenses = []; // Evităm afișarea de date corupte în UI
