@@ -29,11 +29,17 @@ export class ChatbotComponent {
     this.isLoading = true;
 
     this.geminiChatService.sendMessage(this.userInput).subscribe((response) => {
-      const botResponse =
+      let botResponse =
         response.candidates?.[0]?.content?.parts?.[0]?.text ||
         'Eroare: Nu am putut procesa mesajul.';
-      const botMessage: Message = { sender: 'bot', text: botResponse };
 
+      // Curățăm textul de formatare Markdown
+      botResponse = botResponse
+        .replace(/\*\*/g, '') // Elimină bold (**text**)
+        .replace(/\*/g, '') // Elimină marcatorii de listă (* item)
+        .replace(/\n/g, '<br>'); // Înlocuiește newline (\n) cu <br> pentru spațiere
+
+      const botMessage: Message = { sender: 'bot', text: botResponse };
       this.messages.push(botMessage);
       this.isLoading = false;
     });

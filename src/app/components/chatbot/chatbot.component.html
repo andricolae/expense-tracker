@@ -8,9 +8,8 @@
         'user-message': msg.sender === 'user',
         'bot-message': msg.sender === 'bot'
       }"
-    >
-      {{ msg.text }}
-    </div>
+      [innerHTML]="msg.text"
+    ></div>
     <div *ngIf="isLoading" class="loading">⏳ Se generează răspuns...</div>
   </div>
 
