@@ -10,6 +10,7 @@
 <h3 *ngIf="extractedExpenses.length">Cheltuieli extrase:</h3>
 <ul>
   <li *ngFor="let expense of extractedExpenses">
-    {{ expense.name }} - {{ expense.price }} RON
+    <strong>{{ expense.name }}</strong> - {{ expense.price }} RON
+    <span style="color: gray"> ({{ expense.category }}) </span>
   </li>
 </ul>

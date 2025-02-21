@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 export class UploadReceiptComponent {
   imageUrl: string | ArrayBuffer | null = null;
   extractedText: string = '';
-  extractedExpenses: { name: string; price: number }[] = [];
+  extractedExpenses: { name: string; price: number; category: string }[] = [];
   selectedFile: File | null = null;
 
   constructor(
@@ -53,7 +53,7 @@ export class UploadReceiptComponent {
       try {
         const rawText = response.candidates[0].content.parts[0].text;
 
-        // Eliminăm spațiile inutile și verificăm dacă răspunsul începe cu [
+        // Verificăm dacă răspunsul este JSON valid
         if (!rawText.trim().startsWith('[')) {
           throw new Error('Răspunsul nu este JSON valid!');
         }
@@ -61,7 +61,7 @@ export class UploadReceiptComponent {
         this.extractedExpenses = JSON.parse(rawText);
       } catch (error) {
         console.error('Eroare la parsarea răspunsului Gemini:', error);
-        this.extractedExpenses = []; // Evităm să avem date invalide în UI
+        this.extractedExpenses = []; // Evităm afișarea de date corupte în UI
       }
     });
   }
