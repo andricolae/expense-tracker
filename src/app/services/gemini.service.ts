@@ -18,11 +18,21 @@ export class GeminiService {
           parts: [
             {
               text: `Extrage toate produsele și prețurile din acest bon de cumpărături:\n\n${ocrText}\n\n
-              ❗ Răspunde STRICT în format JSON, fără explicații, fără text suplimentar. Structura trebuie să fie:
+              Identifică și categoria fiecărui produs pe baza numelui. 
+  
+              ✅ Răspunde STRICT în format JSON valid, fără text suplimentar. Structura trebuie să fie:
               [
-                { "name": "Numele produsului", "price": 12.99 }
+                { "name": "Numele produsului", "price": 12.99, "category": "Categorie" }
               ]
-              ⚠️ ATENȚIE: Răspunde DOAR cu JSON valid, fără niciun alt caracter în plus.`,
+  
+              🔹 Exemple de categorii posibile: 
+              - "Alimente" (Carne, Lactate, Fructe, Legume, Pâine)
+              - "Băuturi" (Apă, Suc, Cafea, Bere, Vin)
+              - "Produse de curățenie" (Detergent, Șervețele)
+              - "Electrocasnice" (Baterii, Cabluri, Becuri)
+              - "Diverse" (Sacoșe, Pungi, Articole neclasificate)
+  
+              ⚠️ ATENȚIE: Răspunde DOAR cu JSON valid, fără niciun alt caracter în plus. Nu include ghilimele externe.`,
             },
           ],
         },
