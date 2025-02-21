@@ -267,3 +267,86 @@
     box-shadow: 3px 3px 0 #000;
     margin-bottom: 5px;
 }
+
+@media screen and (max-width: 768px) {
+    .background-container {
+        background-image: none;
+        background-color: #fec7a5;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .card {
+        width: 70%;
+        max-width: 100%;
+        padding-top: 20px;
+        height: auto;
+        min-height: 500px;
+        margin-right: 0;
+        padding: 15px;
+        box-shadow: 6px 6px 0 #000000;
+    }
+
+    .head {
+        font-size: 22px;
+        padding: 10px;
+    }
+
+    .tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 9px;
+    }
+
+    .tab-button {
+        flex: 1 1 30%;
+        min-width: 60px;
+        font-size: 12px;
+        padding: 6px;
+        margin: 2px;
+    }
+
+    .expense-form {
+        width: 100%;
+        height: auto;
+        padding: 8px;
+    }
+
+    .expense-form h3 {
+        font-size: 18px;
+        margin: 10px 0;
+    }
+
+    .expense-form label {
+        font-size: 14px;
+    }
+
+    .expense-form input,
+    .expense-form select {
+        font-size: 12px;
+        width: 90%;
+    }
+
+    .button {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .category-popup {
+        width: 90% !important;
+        max-width: 300px;
+        padding: 15px;
+    }
+
+    .week-summary li {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .weekly-overview-button {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
