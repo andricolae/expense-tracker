@@ -1,10 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { Firestore, collection, getDocs, query, where, doc, deleteDoc, updateDoc, addDoc } from '@angular/fire/firestore';
+import { Expense, DayOfWeek, CreateExpenseDTO, UpdateExpenseDTO, FirestoreExpenseDoc } from '../models/expense.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CrudService {
+  private readonly days: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
   private firestore: Firestore = inject(Firestore);
 
   /**
@@ -14,16 +17,15 @@ export class CrudService {
 * @param _amount - The amount of the expense
 * @returns Promise containing an array of entries with their IDs and data
 */
-  async addItem(day: string, _category: string, _amount: string) {
+  async addItem(day: DayOfWeek, expense: CreateExpenseDTO): Promise<string | null> {
     try {
       const docRef = await addDoc(collection(this.firestore, day), {
-        category: _category,
-        amount: _amount
+        ...expense
       });
-
-      console.log('Document written with ID: ', docRef.id);
+      return docRef.id;
     } catch (e) {
       console.error('Error adding document: ', e);
+      return null;
     }
   }
 
@@ -32,15 +34,13 @@ export class CrudService {
   * @param day - The day of the week (e.g., 'monday', 'tuesday')
   * @returns List of objects {category, amount}
   */
-  async getByDay(day: string) {
+  async getByDay(day: string): Promise<Expense[]> {
     try {
       const querySnapshot = await getDocs(collection(this.firestore, day));
-      const items = querySnapshot.docs.map(doc => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      }));
-      console.log(`Items for ${day}:`, items);
-      return items;
+      } as Expense));
     } catch (error) {
       console.error('Error getting documents:', error);
       return [];
@@ -54,7 +54,7 @@ export class CrudService {
  * @param category - The category for which we are searching the entries
  * @returns List of objects {category, amount}
  */
-  async getByDayAndCategory(day: string, category: string) {
+  async getByDayAndCategory(day: DayOfWeek, category: string): Promise<Expense[]> {
     try {
       const q = query(
         collection(this.firestore, day),
@@ -64,7 +64,7 @@ export class CrudService {
       const items = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      }));
+      } as Expense));
       console.log(`Items for ${day} in category ${category}:`, items);
       return items;
     } catch (error) {
@@ -78,12 +78,11 @@ export class CrudService {
 * @param category - The category for which we are searching the entries
 * @returns List of objects {category, amount}
 */
-  async getByCategoryAllDays(category: string) {
+  async getByCategoryAllDays(category: string): Promise<Expense[]> {
     try {
-      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      const allItems = [];
+      const allItems: Expense[] = [];
 
-      for (const day of days) {
+      for (const day of this.days) {
         const q = query(
           collection(this.firestore, day),
           where("category", "==", category)
@@ -92,8 +91,9 @@ export class CrudService {
         const items = querySnapshot.docs.map(doc => ({
           id: doc.id,
           day: day,
-          ...doc.data()
+          ...doc.data() as FirestoreExpenseDoc
         }));
+
         allItems.push(...items);
       }
 
@@ -111,7 +111,7 @@ export class CrudService {
   * @param id - The id of the entry
   * @returns Boolean wether the delete has been successful
   */
-  async deleteItem(day: string, id: string) {
+  async deleteItem(day: DayOfWeek, id: string): Promise<boolean> {
     try {
       await deleteDoc(doc(this.firestore, day, id));
       console.log(`Successfully deleted document ${id} from ${day}`);
@@ -129,10 +129,15 @@ export class CrudService {
   * @param newData - The new data to be updated (optional category and optional amount)
   * @returns Boolean wether the update has been successful
   */
-  async updateItem(day: string, id: string, newData: { category?: string, amount?: string }) {
+  async updateItem(day: DayOfWeek, id: string, newData: UpdateExpenseDTO) {
     try {
-      await updateDoc(doc(this.firestore, day, id), newData);
-      console.log(`Successfully updated document ${id} in ${day}`, newData);
+      const validatedData: UpdateExpenseDTO = {
+        ...newData,
+        amount: newData.amount ? Number(newData.amount) : undefined
+      };
+
+      await updateDoc(doc(this.firestore, day, id), validatedData);
+      console.log(`Successfully updated document ${id} in ${day}`, validatedData);
       return true;
     } catch (error) {
       console.error('Error updating document:', error);
