@@ -10,12 +10,13 @@ import { CrudComponent } from './app/pages/crud/crud.component';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { firebaseConfig } from './environment';
+import { AuthGuard } from './app/guards/auth.guard';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: '', component: HomeComponent },
   { path: 'auth', component: AuthComponent },
-  { path: 'track', component: TrackerComponent },
+  { path: 'track', component: TrackerComponent, canActivate: [AuthGuard] },
   { path: 'about-us', component: AboutusComponent },
   { path: 'crud', component: CrudComponent },
 ];

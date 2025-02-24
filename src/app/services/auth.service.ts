@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { BehaviorSubject, tap } from "rxjs";
 
 
 interface AuthResponseData {
@@ -16,6 +17,7 @@ interface AuthResponseData {
 export class AuthService {
 
     private apiKey = "AIzaSyDmGuH_3Nb-RzBp0pS1xKA5wmYdbVNuruc";
+    public user = new BehaviorSubject<string | null>(null); 
 
     constructor(private http: HttpClient) { }
 
@@ -24,7 +26,11 @@ export class AuthService {
             email: email,
             password: password,
             returnSecureToken: true
-        })
+        }).pipe(
+            tap(response => {
+                this.user.next(response.idToken); 
+            })
+        );
     }
 
     login(email: string, password: string) {
@@ -33,7 +39,11 @@ export class AuthService {
             password: password,
             returnSecureToken: true
 
-        })
+        }).pipe(
+            tap(response => {
+                this.user.next(response.idToken); 
+            })
+        );
 
     }
 
