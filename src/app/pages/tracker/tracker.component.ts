@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { TrackerConfigService, TrackerConfig } from '../../services/tracker-config.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CrudService } from '../../services/crud.service';
+import { CreateExpenseDTO, DayOfWeek, Expense, UpdateExpenseDTO, Category } from '../../models/expense.model';
 
 @Component({
   selector: 'app-tracker',
@@ -11,23 +13,54 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./tracker.component.css']
 })
 export class TrackerComponent implements OnInit {
-  days: string[] = [];
-  selectedDay = '';
-  categories: string[] = [];
+  @ViewChild('expName') expNameInput!: ElementRef;
+  @ViewChild('expAmount') expAmountInput!: ElementRef;
+  @ViewChild('expCategory') expCategorySelect!: ElementRef;
+
+  dailyTotals: { [key in DayOfWeek]: number } = {
+    Monday: 0,
+    Tuesday: 0,
+    Wednesday: 0,
+    Thursday: 0,
+    Friday: 0,
+    Saturday: 0,
+    Sunday: 0,
+  };
+
+  days: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  selectedDay: DayOfWeek = "Monday";
+  categories: Category[] = ['Groceries', 'Taxes', 'Entertainment', 'Education', 'Clothing', 'Healthcare', 'Sports', 'Travel', 'Gifts', 'Miscellaneous'];
   newCategory = '';
   showCategoryPopup = false;
   showExpenseForm = false;
   showWeeklyOverview = false;
+  dailyExpenses: Expense[] = [];
+
+  _expenses: Expense[] = [];
+
+  _newExpense: CreateExpenseDTO = {
+    name: '',
+    category: 'Groceries',
+    amount: 0
+  };
+
+  _updates: UpdateExpenseDTO = {
+    name: 'Updated Lunch',
+    amount: 25,
+    category: 'Groceries'
+  };
 
   expense: any[] = [];
 
-  constructor(private trackerConfigService: TrackerConfigService) {}
+  constructor(private trackerConfigService: TrackerConfigService, private crudService: CrudService) { }
 
   ngOnInit() {
     this.trackerConfigService.getWeekdays().subscribe((config: TrackerConfig) => {
       this.days = config.weekdays.map(day => day.name);
       this.selectedDay = this.getCurrentAvailableDay();
     });
+    this.getExpensesByDay(this.selectedDay);
+    this.getDailyTotal();
   }
 
   toggleCategoryPopup() {
@@ -44,15 +77,15 @@ export class TrackerComponent implements OnInit {
     this.showExpenseForm = false;
   }
 
-  getCurrentDay(): string {
+  getCurrentDay(): DayOfWeek {
     const today = new Date();
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    return weekdays[today.getDay()];
+    return weekdays[today.getDay()] as DayOfWeek;
   }
 
-  getCurrentAvailableDay(): string {
-    const currentDay = this.getCurrentDay();
-    return this.days.includes(currentDay) ? currentDay : this.days[0]; 
+  getCurrentAvailableDay(): DayOfWeek {
+    const currentDay = this.getCurrentDay() as DayOfWeek;
+    return this.days.includes(currentDay) ? currentDay : this.days[0] as DayOfWeek;
   }
 
   expenses = [
@@ -63,28 +96,53 @@ export class TrackerComponent implements OnInit {
     { name: "Gym", category: "Health", amount: 40, day: "Thursday" }
   ];
 
-  getDayExpenses(day: string) {
+  getDayExpenses(day: DayOfWeek) {
     return this.expenses.filter(expense => expense.day === day);
   }
 
-  getTotalWeeklyExpenses() {
-    return this.expenses.reduce((total, expense) => total + expense.amount, 0);
+  async getExpensesByDay(day: DayOfWeek) {
+    this.dailyExpenses = await this.crudService.getByDay(day);
   }
 
-  getTotalForDay(day: string) {
-    return this.getDayExpenses(day).reduce((total, expense) => total + expense.amount, 0);
+  async saveExpense(day: DayOfWeek) {
+    this._newExpense.name = this.expNameInput.nativeElement.value;
+    this._newExpense.category = this.expCategorySelect.nativeElement.value;
+    this._newExpense.amount = this.expAmountInput.nativeElement.value;
+    this.showExpenseForm = false;
+    await this.crudService.addItem(day, this._newExpense);
+    this.ngOnInit();
   }
 
+  async deleteExpense(id: string) {
+    await this.crudService.deleteItem(this.selectedDay, id);
+    this.ngOnInit();
+  }
 
-  // To imlement
+  async getDailyTotal() {
+    try {
+      this.dailyTotals = await this.crudService.calculateDailyTotals();
+    } catch (error) {
+      console.error('Error loading daily totals:', error);
+    }
+  }
 
-  saveExpense(): void {}
+  getWeeklyTotal() {
+    return Object.values(this.dailyTotals).reduce((totalSum, dailyAmount) => totalSum + dailyAmount, 0);
+  }
 
-  deleteExpense(expenseId: string): void {}
+  onDayChanged(day: DayOfWeek) {
+    this.selectedDay = day
+    this.ngOnInit();
+  }
 
-  loadCategories(): void {}
+  checkDay(): boolean {
+    const today = new Date();
+    return this.selectedDay > this.days[today.getDay() - 1];
+  }
 
-  addCategory(): void {}
+  loadCategories(): void { }
 
-  deleteCategory(category: string): void {}
+  addCategory(): void { }
+
+  deleteCategory(category: string): void { }
 }
