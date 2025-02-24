@@ -51,4 +51,16 @@ export class AuthComponent {
 
   }
 
+  resetPassword() {
+    const email = prompt("Please enter your email for password reset:");
+    if (email) {
+      this.authService.resetPassword(email).subscribe(() => {
+        alert("Password reset link has been sent to your email.");
+      }, (error) => {
+        console.error(error);
+      });
+    }
+
+  }
+
 }
