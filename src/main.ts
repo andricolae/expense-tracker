@@ -16,7 +16,7 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'auth', component: AuthComponent },
   { path: 'track', component: TrackerComponent },
-  { path: 'about', component: AboutusComponent },
+  { path: 'about-us', component: AboutusComponent },
   { path: 'crud', component: CrudComponent },
 ];
 

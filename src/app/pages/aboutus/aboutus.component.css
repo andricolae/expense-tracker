@@ -1,0 +1,67 @@
+.background-container {
+    background-image: url('../../../../public/homeBackground.jpg');
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    z-index: -1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 120px; 
+}
+
+.card {
+    font-family: Montserrat, sans-serif;
+    width: 420px; 
+    max-height: 500px; 
+    background: #669cff;
+    border: 3px solid #000000;
+    box-shadow: 10px 10px 0 #000000;
+    overflow-y: none; 
+    transition: all 0.3s ease;
+    text-align: center;
+    padding-bottom: 15px;
+    position: relative;
+    margin-top: 20px; 
+}
+
+.head {
+    font-family: Montserrat, sans-serif;
+    font-size: 16px; 
+    font-weight: 900;
+    background: #ffffff;
+    color: #000000;
+    border-bottom: 3px solid #000000;
+    padding: 8px;
+    margin: 8px;
+    width: calc(100% - 30px);
+    display: inline-block;
+}
+
+.content {
+    padding: 10px; 
+    font-size: 14px; 
+    font-weight: 500;
+    color: white;
+    line-height: 1.4;
+}
+
+.content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.content li {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px;
+    margin: 4px 0;
+    border-radius: 4px;
+    font-size: 14px; 
+}
