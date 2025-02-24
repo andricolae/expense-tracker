@@ -17,12 +17,16 @@ export class TrackerComponent implements OnInit {
   newCategory = '';
   showCategoryPopup = false;
   showExpenseForm = false;
-  constructor(private trackerConfigService: TrackerConfigService) { }
+  showWeeklyOverview = false;
+
+  expense: any[] = [];
+
+  constructor(private trackerConfigService: TrackerConfigService) {}
 
   ngOnInit() {
     this.trackerConfigService.getWeekdays().subscribe((config: TrackerConfig) => {
       this.days = config.weekdays.map(day => day.name);
-      this.selectedDay = this.days.length > 0 ? this.days[0] : '';
+      this.selectedDay = this.getCurrentAvailableDay();
     });
   }
 
@@ -31,51 +35,56 @@ export class TrackerComponent implements OnInit {
     this.newCategory = '';
   }
 
-  addCategory() {
-    if (this.newCategory.trim() && !this.categories.includes(this.newCategory.trim())) {
-      this.categories.unshift(this.newCategory.trim());
-    }
-    this.showCategoryPopup = false;
-    this.newCategory = '';
-  }
-
-
-  // Dummy expense data and functions
-
-  showWeeklyOverview = false;
-
-  expenses = [
-    { day: 'Monday', amount: 20 },
-    { day: 'Monday', amount: 15 },
-    { day: 'Tuesday', amount: 30 },
-    { day: 'Wednesday', amount: 25 },
-    { day: 'Wednesday', amount: 10 },
-    { day: 'Thursday', amount: 40 }
-  ];
-
   toggleExpenseForm() {
     this.showExpenseForm = !this.showExpenseForm;
   }
 
-  toggleWeeklyOverview(): void {
+  toggleWeeklyOverview() {
     this.showWeeklyOverview = !this.showWeeklyOverview;
+    this.showExpenseForm = false;
   }
 
-  getTotalWeeklyExpenses(): number {
+  getCurrentDay(): string {
+    const today = new Date();
+    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    return weekdays[today.getDay()];
+  }
+
+  getCurrentAvailableDay(): string {
+    const currentDay = this.getCurrentDay();
+    return this.days.includes(currentDay) ? currentDay : this.days[0]; 
+  }
+
+  expenses = [
+    { name: "Lunch", category: "Food", amount: 20, day: "Monday" },
+    { name: "Taxi", category: "Transport", amount: 15, day: "Monday" },
+    { name: "Groceries", category: "Shopping", amount: 30, day: "Tuesday" },
+    { name: "Coffee", category: "Food", amount: 5, day: "Wednesday" },
+    { name: "Gym", category: "Health", amount: 40, day: "Thursday" }
+  ];
+
+  getDayExpenses(day: string) {
+    return this.expenses.filter(expense => expense.day === day);
+  }
+
+  getTotalWeeklyExpenses() {
     return this.expenses.reduce((total, expense) => total + expense.amount, 0);
   }
 
-  getTotalForDay(day: string): number {
-    return this.expenses
-      .filter(expense => expense.day === day)
-      .reduce((total, expense) => total + expense.amount, 0);
+  getTotalForDay(day: string) {
+    return this.getDayExpenses(day).reduce((total, expense) => total + expense.amount, 0);
   }
 
-  getDayExpenses(day: string) {
-    return [
-      { name: "Lunch", category: "Food", amount: 10 },
-      { name: "Taxi", category: "Transport", amount: 15 }
-    ];
-  }
+
+  // To imlement
+
+  saveExpense(): void {}
+
+  deleteExpense(expenseId: string): void {}
+
+  loadCategories(): void {}
+
+  addCategory(): void {}
+
+  deleteCategory(category: string): void {}
 }
-
