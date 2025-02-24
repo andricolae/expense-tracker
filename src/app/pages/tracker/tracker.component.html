@@ -77,10 +77,10 @@
                 </ng-container>
 
                 <ng-container *ngIf="showWeeklyOverview">
-                    <h2>Total Weekly Expenses: {{ getTotalWeeklyExpenses() }} </h2>
+                    <h2>Total Weekly Expenses: {{ getWeeklyTotal() }} </h2>
                     <ul class="week-summary">
                         <li *ngFor="let day of days">
-                            <!-- {{ day }}: {{ getTotalForDay(day) }} -->
+                            {{ day }}: {{ dailyTotals[day] }}
                         </li>
                     </ul>
                     <button class="button" (click)="toggleWeeklyOverview()">Back to Tracker</button>

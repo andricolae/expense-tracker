@@ -17,6 +17,16 @@ export class TrackerComponent implements OnInit {
   @ViewChild('expAmount') expAmountInput!: ElementRef;
   @ViewChild('expCategory') expCategorySelect!: ElementRef;
 
+  dailyTotals: { [key in DayOfWeek]: number } = {
+    Monday: 0,
+    Tuesday: 0,
+    Wednesday: 0,
+    Thursday: 0,
+    Friday: 0,
+    Saturday: 0,
+    Sunday: 0,
+  };
+
   days: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   selectedDay: DayOfWeek = "Monday";
   categories: Category[] = ['Groceries', 'Taxes', 'Entertainment', 'Education', 'Clothing', 'Healthcare', 'Sports', 'Travel', 'Gifts', 'Miscellaneous'];
@@ -50,6 +60,7 @@ export class TrackerComponent implements OnInit {
       this.selectedDay = this.getCurrentAvailableDay();
     });
     this.getExpensesByDay(this.selectedDay);
+    this.getDailyTotal();
   }
 
   toggleCategoryPopup() {
@@ -87,16 +98,7 @@ export class TrackerComponent implements OnInit {
 
   getDayExpenses(day: DayOfWeek) {
     return this.expenses.filter(expense => expense.day === day);
-    // return this.getExpensesByDay(day);
   }
-
-  getTotalWeeklyExpenses() {
-    return this.expenses.reduce((total, expense) => total + expense.amount, 0);
-  }
-
-  // getTotalForDay(day: string) {
-  //   return this.getDayExpenses(day).reduce((total, expense) => total + expense.amount, 0);
-  // }
 
   async getExpensesByDay(day: DayOfWeek) {
     this.dailyExpenses = await this.crudService.getByDay(day);
@@ -114,6 +116,18 @@ export class TrackerComponent implements OnInit {
   async deleteExpense(id: string) {
     await this.crudService.deleteItem(this.selectedDay, id);
     this.ngOnInit();
+  }
+
+  async getDailyTotal() {
+    try {
+      this.dailyTotals = await this.crudService.calculateDailyTotals();
+    } catch (error) {
+      console.error('Error loading daily totals:', error);
+    }
+  }
+
+  getWeeklyTotal() {
+    return Object.values(this.dailyTotals).reduce((totalSum, dailyAmount) => totalSum + dailyAmount, 0);
   }
 
   onDayChanged(day: DayOfWeek) {

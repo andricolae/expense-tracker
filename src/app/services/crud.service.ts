@@ -144,4 +144,28 @@ export class CrudService {
       return false;
     }
   }
+
+  async calculateDailyTotals(): Promise<{ [key in DayOfWeek]: number }> {
+    const dailyTotals: { [key in DayOfWeek]: number } = {
+      Monday: 0,
+      Tuesday: 0,
+      Wednesday: 0,
+      Thursday: 0,
+      Friday: 0,
+      Saturday: 0,
+      Sunday: 0,
+    };
+
+    try {
+      for (const day of this.days) {
+        const expenses = await this.getByDay(day);
+        const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        dailyTotals[day] = totalAmount;
+      }
+    } catch (error) {
+      console.error('Error calculating daily totals:', error);
+    }
+
+    return dailyTotals;
+  }
 }
