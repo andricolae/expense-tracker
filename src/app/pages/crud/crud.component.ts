@@ -13,14 +13,14 @@ export class CrudComponent {
 
   newExpense: CreateExpenseDTO = {
     name: 'Groceries',
-    category: 'groceries',
+    category: 'Groceries',
     amount: 50
   };
 
   updates: UpdateExpenseDTO = {
     name: 'Updated Lunch',
     amount: 25,
-    category: 'groceries'
+    category: 'Groceries'
   };
 
   constructor(private crudService: CrudService) { }

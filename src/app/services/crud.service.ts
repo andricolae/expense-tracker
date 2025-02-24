@@ -6,8 +6,8 @@ import { Expense, DayOfWeek, CreateExpenseDTO, UpdateExpenseDTO, FirestoreExpens
   providedIn: 'root'
 })
 export class CrudService {
-  private readonly days: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-  private readonly categories: Category[] = ['groceries', 'taxes', 'entertainment', 'education', 'clothing', 'healthcare', 'sports', 'travel', 'gifts', 'miscellaneous'];
+  private readonly days: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  private readonly categories: Category[] = ['Groceries', 'Taxes', 'Entertainment', 'Education', 'Clothing', 'Healthcare', 'Sports', 'Travel', 'Gifts', 'Miscellaneous'];
 
   private firestore: Firestore = inject(Firestore);
 
@@ -35,7 +35,7 @@ export class CrudService {
   * @param day - The day of the week (e.g., 'monday', 'tuesday')
   * @returns List of objects {category, amount}
   */
-  async getByDay(day: string): Promise<Expense[]> {
+  async getByDay(day: DayOfWeek): Promise<Expense[]> {
     try {
       const querySnapshot = await getDocs(collection(this.firestore, day));
       return querySnapshot.docs.map(doc => ({
