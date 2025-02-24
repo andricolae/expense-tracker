@@ -3,6 +3,7 @@ import { provideRouter, Routes } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { AppComponent } from './app/app.component';
 import { HomeComponent } from './app/pages/home/home.component';
+import { AboutusComponent } from './app/pages/aboutus/aboutus.component';
 import { AuthComponent } from './app/components/auth/auth.component';
 import { TrackerComponent } from './app/pages/tracker/tracker.component';
 import { CrudComponent } from './app/pages/crud/crud.component';
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'auth', component: AuthComponent },
   { path: 'track', component: TrackerComponent },
+  { path: 'about', component: AboutusComponent },
   { path: 'crud', component: CrudComponent },
 ];
 
