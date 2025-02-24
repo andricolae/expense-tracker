@@ -8,8 +8,20 @@
           </a>
         </li>
       </ul>
-      <button class="auth-button" (click)="goToLogin()">Login
-        
+      <button
+        *ngIf="!isAuthenticated"
+        class="auth-button"
+        (click)="goToLogin()"
+      >
+        Login
+      </button>
+
+      <button
+        *ngIf="isAuthenticated"
+        class="auth-button"
+        (click)="goToLogout()"
+      >
+        Logout
       </button>
     </div>
   </nav>
