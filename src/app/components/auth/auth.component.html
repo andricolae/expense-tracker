@@ -17,7 +17,9 @@
         type="password"
       />
 
-      <button class="button-confirm">Login</button>
+      <button class="button-confirm">
+        {{ isRegistering ? "Sign up" : "Login" }}
+      </button>
       <div *ngIf="!isRegistering">
         <p>
           <a (click)="toggleMode()">
@@ -27,6 +29,10 @@
                 : "No account? Sign up."
             }}
           </a>
+
+          <a (click)="resetPassword()">"Forgot password?"</a>
+
+        
         </p>
       </div>
     </form>
