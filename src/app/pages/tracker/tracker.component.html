@@ -10,13 +10,13 @@
                     <!-- Tabs for weekdays -->
                     <div class="tabs">
                         <button *ngFor="let day of days" class="tab-button" [class.active]="selectedDay === day"
-                            (click)="selectedDay = day">
+                            (click)="selectedDay = day; getExpensesByDay(selectedDay);">
                             {{ day }}
                         </button>
                     </div>
 
                     <div class="button-bar">
-                        <button class="button" (click)="toggleExpenseForm()">
+                        <button class="button" (click)="toggleExpenseForm()" [disabled]="checkDay()">
                             {{ showExpenseForm ? 'Back' : 'Add Expense' }}
                         </button>
                         <button class="button save-button" *ngIf="showExpenseForm" (click)="saveExpense(selectedDay)">Save</button>

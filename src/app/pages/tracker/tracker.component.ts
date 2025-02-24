@@ -17,7 +17,7 @@ export class TrackerComponent implements OnInit {
   @ViewChild('expAmount') expAmountInput!: ElementRef;
   @ViewChild('expCategory') expCategorySelect!: ElementRef;
 
-  days: DayOfWeek[] = [];
+  days: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   selectedDay: DayOfWeek = "Monday";
   categories: Category[] = ['Groceries', 'Taxes', 'Entertainment', 'Education', 'Clothing', 'Healthcare', 'Sports', 'Travel', 'Gifts', 'Miscellaneous'];
   newCategory = '';
@@ -114,6 +114,16 @@ export class TrackerComponent implements OnInit {
   async deleteExpense(id: string) {
     await this.crudService.deleteItem(this.selectedDay, id);
     this.ngOnInit();
+  }
+
+  onDayChanged(day: DayOfWeek) {
+    this.selectedDay = day
+    this.ngOnInit();
+  }
+
+  checkDay(): boolean {
+    const today = new Date();
+    return this.selectedDay > this.days[today.getDay() - 1];
   }
 
   loadCategories(): void { }
