@@ -60,14 +60,14 @@
                     <ng-container *ngIf="!showExpenseForm">
                         <div class="expense-list">
                             <h4>Existing Expenses</h4>
-                            <div class="expense-item" *ngFor="let expense of dailyExpenses">
+                            <div class="expense-item" *ngFor="let _expense of dailyExpenses">
                                 <div class="expense-info">
-                                    <span class="expense-name">{{ expense.name }}</span>
-                                    <span class="expense-category">{{ expense.category }}</span>
+                                    <span class="expense-name">{{ _expense.name }}</span>
+                                    <span class="expense-category">{{ _expense.category }}</span>
                                 </div>
                                 <div class="expense-amount">
-                                    {{ expense.amount }} €
-                                    <button class="delete-btn" (click)="deleteExpense(expense.name)">×</button>
+                                    {{ _expense.amount }} €
+                                    <button class="delete-btn" (click)="deleteExpense(_expense.id)">×</button>
                                 </div>
                             </div>
                         </div>

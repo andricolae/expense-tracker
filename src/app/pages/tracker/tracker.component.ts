@@ -42,7 +42,7 @@ export class TrackerComponent implements OnInit {
 
   expense: any[] = [];
 
-  constructor(private trackerConfigService: TrackerConfigService, private crudService: CrudService) {}
+  constructor(private trackerConfigService: TrackerConfigService, private crudService: CrudService) { }
 
   ngOnInit() {
     this.trackerConfigService.getWeekdays().subscribe((config: TrackerConfig) => {
@@ -111,11 +111,14 @@ export class TrackerComponent implements OnInit {
     this.ngOnInit();
   }
 
-  deleteExpense(expenseId: string): void {}
+  async deleteExpense(id: string) {
+    await this.crudService.deleteItem(this.selectedDay, id);
+    this.ngOnInit();
+  }
 
-  loadCategories(): void {}
+  loadCategories(): void { }
 
-  addCategory(): void {}
+  addCategory(): void { }
 
-  deleteCategory(category: string): void {}
+  deleteCategory(category: string): void { }
 }

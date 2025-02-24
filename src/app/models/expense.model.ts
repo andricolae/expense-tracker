@@ -3,7 +3,7 @@ export type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Frida
 export type Category = 'Groceries' | 'Taxes' | 'Entertainment' | 'Education' | 'Clothing' | 'Healthcare' | 'Sports' | 'Travel' | 'Gifts' | 'Miscellaneous';
 
 export interface Expense {
-  id?: string;
+  id: string;
   name: string;
   category: Category;
   amount: number;
