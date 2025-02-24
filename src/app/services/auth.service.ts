@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, tap } from "rxjs";
 
 
 
@@ -28,7 +28,9 @@ export class AuthService {
             email: email,
             password: password,
             returnSecureToken: true
-        })
+        }).pipe(tap(response => {
+            this.user.next(response);
+        }))
     }
 
     login(email: string, password: string) {
@@ -37,7 +39,9 @@ export class AuthService {
             password: password,
             returnSecureToken: true
 
-        })
+        }).pipe(tap(response => {
+            this.user.next(response);
+        }))
 
     }
 
@@ -51,7 +55,9 @@ export class AuthService {
 
     logout() {
         this.user.next(null);
+        console.log("User logged out!")
         this.router.navigate(['/auth']);
+
     }
 
 
