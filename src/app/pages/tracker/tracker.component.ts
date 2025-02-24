@@ -16,7 +16,7 @@ export class TrackerComponent implements OnInit {
   categories: string[] = [];
   newCategory = '';
   showCategoryPopup = false;
-
+  showExpenseForm = false;
   constructor(private trackerConfigService: TrackerConfigService) { }
 
   ngOnInit() {
@@ -53,6 +53,10 @@ export class TrackerComponent implements OnInit {
     { day: 'Thursday', amount: 40 }
   ];
 
+  toggleExpenseForm() {
+    this.showExpenseForm = !this.showExpenseForm;
+  }
+
   toggleWeeklyOverview(): void {
     this.showWeeklyOverview = !this.showWeeklyOverview;
   }
@@ -66,4 +70,12 @@ export class TrackerComponent implements OnInit {
       .filter(expense => expense.day === day)
       .reduce((total, expense) => total + expense.amount, 0);
   }
+
+  getDayExpenses(day: string) {
+    return [
+      { name: "Lunch", category: "Food", amount: 10 },
+      { name: "Taxi", category: "Transport", amount: 15 }
+    ];
+  }
 }
+
