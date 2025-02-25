@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { DayOfWeek } from '../models/expense.model';
 
 export interface Weekday {
-  name: string;
+  name: DayOfWeek;
 }
 
 export interface TrackerConfig {

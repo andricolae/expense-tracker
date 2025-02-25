@@ -1,5 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
+import { BehaviorSubject, tap } from "rxjs";
+
 
 
 interface AuthResponseData {
@@ -16,15 +19,18 @@ interface AuthResponseData {
 export class AuthService {
 
     private apiKey = "AIzaSyDmGuH_3Nb-RzBp0pS1xKA5wmYdbVNuruc";
+    user = new BehaviorSubject<AuthResponseData | null>(null);
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private router: Router) { }
 
     signup(email: string, password: string) {
         return this.http.post<AuthResponseData>(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${this.apiKey}`, {
             email: email,
             password: password,
             returnSecureToken: true
-        })
+        }).pipe(tap(response => {
+            this.user.next(response);
+        }))
     }
 
     login(email: string, password: string) {
@@ -33,7 +39,9 @@ export class AuthService {
             password: password,
             returnSecureToken: true
 
-        })
+        }).pipe(tap(response => {
+            this.user.next(response);
+        }))
 
     }
 
@@ -42,6 +50,13 @@ export class AuthService {
             requestType: "PASSWORD_RESET",
             email: email
         })
+
+    }
+
+    logout() {
+        this.user.next(null);
+        console.log("User logged out!")
+        this.router.navigate(['/auth']);
 
     }
 

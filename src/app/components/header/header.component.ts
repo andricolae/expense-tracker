@@ -3,6 +3,7 @@ import { ConfigService, Config, MenuItem } from '../../services/config.service';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 
 @Component({
@@ -15,15 +16,21 @@ import { Router } from '@angular/router';
 export class HeaderComponent {
   menu: MenuItem[] = [];
   sticky = false;
+  isAuthenticated = false;
 
   constructor(
     private configService: ConfigService,
     private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
   
       this.loadMenu();
+
+      this.authService.user.subscribe(user=>{
+        this.isAuthenticated = !!user;
+      });
     }
 
   private loadMenu(): void {
@@ -38,5 +45,9 @@ export class HeaderComponent {
 
   goToLogin(): void {
     this.router.navigate(['/auth']);
+  }
+
+  goToLogout(): void {
+    this.authService.logout();
   }
 }
