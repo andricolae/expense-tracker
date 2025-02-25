@@ -38,6 +38,9 @@ export class TrackerComponent implements OnInit {
 
   _expenses: Expense[] = [];
 
+  isEditing = false;
+  editingExpenseId: string | null = null;
+
   _newExpense: CreateExpenseDTO = {
     name: '',
     category: 'Groceries',
@@ -58,8 +61,8 @@ export class TrackerComponent implements OnInit {
     this.trackerConfigService.getWeekdays().subscribe((config: TrackerConfig) => {
       this.days = config.weekdays.map(day => day.name);
       this.selectedDay = this.getCurrentAvailableDay();
+      this.getExpensesByDay(this.selectedDay);
     });
-    this.getExpensesByDay(this.selectedDay);
     this.getDailyTotal();
   }
 
@@ -70,6 +73,9 @@ export class TrackerComponent implements OnInit {
 
   toggleExpenseForm() {
     this.showExpenseForm = !this.showExpenseForm;
+    if (!this.showExpenseForm) {
+      this.resetForm();
+    }
   }
 
   toggleWeeklyOverview() {
@@ -118,6 +124,49 @@ export class TrackerComponent implements OnInit {
     this.ngOnInit();
   }
 
+  resetForm() {
+    this.expNameInput.nativeElement.value = "";
+    this.expCategorySelect.nativeElement.value = "";
+    this.expAmountInput.nativeElement.value = "";
+    this.isEditing = false;
+    this.editingExpenseId = null;
+  }
+
+  editExpense(expense: Expense) {
+    if (!expense) return;
+
+    this.isEditing = true;
+    this.editingExpenseId = expense.id;
+
+    this.showExpenseForm = true;
+
+    setTimeout(() => {
+      this.expNameInput.nativeElement.value = expense.name;
+      this.expCategorySelect.nativeElement.value = expense.category;
+      this.expAmountInput.nativeElement.value = expense.amount;
+    }, 0);
+  }
+
+  async updateExpense() {
+    if (!this.isEditing || !this.editingExpenseId) 
+      return;
+
+    const updatedExpense: UpdateExpenseDTO = {
+      name: this.expNameInput.nativeElement.value,
+      category: this.expCategorySelect.nativeElement.value,
+      amount: parseFloat(this.expAmountInput.nativeElement.value)
+    };
+
+    // console.log("Updated values are: Name: ", updatedExpense.name, " Amount: ", updatedExpense.amount, " Category: ", updatedExpense.category)
+
+    await this.crudService.updateItem(this.selectedDay, this.editingExpenseId, updatedExpense);
+
+    this.isEditing = false;
+    this.editingExpenseId = null;
+    this.toggleExpenseForm();
+    this.getExpensesByDay(this.selectedDay);
+  }
+
   async getDailyTotal() {
     try {
       this.dailyTotals = await this.crudService.calculateDailyTotals();
@@ -137,7 +186,8 @@ export class TrackerComponent implements OnInit {
 
   checkDay(): boolean {
     const today = new Date();
-    return this.selectedDay > this.days[today.getDay() - 1];
+    // return this.selectedDay > this.days[today.getDay() - 1];
+    return this.days.indexOf(this.selectedDay) > this.days.indexOf(this.days[today.getDay() - 1]);
   }
 
   loadCategories(): void { }

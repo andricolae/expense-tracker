@@ -525,13 +525,36 @@ p {
 
 .delete-btn {
     background: rgb(225, 85, 85);
-    color: white;
-    border-radius: 50px;
+    padding: 5px 12px;
+    font-size: 14px;
     font-weight: bold;
-    border: none;
+    color: black;
+    box-shadow: 3px 3px 0 black;
     cursor: pointer;
-    padding: 4px 8px;
+    transition: all 0.2s ease;
+    margin-right: 8px;
 }
+
+.edit-btn {
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    color: black;
+    background-color: #ffc107; 
+    box-shadow: 3px 3px 0 black;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 8px;
+}
+
+.edit-btn:hover {
+    background-color: #ffdb58;
+}
+
+.edit-btn:active {
+    background-color: #e6b800;
+}
+
 
 @media screen and (max-width: 768px) {
     .background-container {
@@ -644,6 +667,15 @@ p {
         max-height: 250px;
         overflow-y: auto;
     }
+
+    .expense-item{
+        display: block;
+    }
+
+    .delete-btn, .edit-btn{
+        font-size: 8px;
+    }
+    
 }
 
 @media screen and (max-width: 376px) {
