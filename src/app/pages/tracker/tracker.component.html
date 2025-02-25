@@ -19,7 +19,13 @@
                         <button class="button" (click)="toggleExpenseForm()" [disabled]="checkDay()">
                             {{ showExpenseForm ? 'Back' : 'Add Expense' }}
                         </button>
-                        <button class="button save-button" *ngIf="showExpenseForm" (click)="saveExpense(selectedDay)">Save</button>
+                        <!-- <button class="button save-button" *ngIf="showExpenseForm" (click)="saveExpense(selectedDay)">Save</button> -->
+                        <button class="button save-button" *ngIf="showExpenseForm"
+                            (click)="isEditing ? updateExpense() : saveExpense(selectedDay)">
+                            {{ isEditing ? 'Update' : 'Save' }}
+                        </button>
+
+
                     </div>
 
                     <!-- Expense Form -->
@@ -31,9 +37,9 @@
                             <input #expName type="text" placeholder="Enter expense name" />
 
                             <label>Add or select category
-                              <!-- <button class="add-category-button"
+                                <!-- <button class="add-category-button"
                                     (click)="toggleCategoryPopup()">+</button> -->
-                                  </label>
+                            </label>
                             <div class="category-container">
                                 <select #expCategory>
                                     <option>Select Category</option>
@@ -71,7 +77,9 @@
                                 </div>
                                 <div class="expense-amount">
                                     {{ _expense.amount }} €
-                                    <button class="delete-btn" (click)="deleteExpense(_expense.id)">×</button>
+                                    <button class="edit-btn" (click)="editExpense(_expense)"
+                                        (click)="toggleExpenseForm()">Edit</button>
+                                    <button class="delete-btn" (click)="deleteExpense(_expense.id)">Delete</button>
                                 </div>
                             </div>
                         </div>
