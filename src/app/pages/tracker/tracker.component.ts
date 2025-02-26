@@ -60,6 +60,9 @@ export class TrackerComponent implements OnInit {
   expendedDay: DayOfWeek | null = null;
   expendedDayExpenses: Expense[] = [];
 
+  editingCategory: string | null = null;
+  editedCategory: string = '';
+
   constructor(private trackerConfigService: TrackerConfigService, private crudService: CrudService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
@@ -197,9 +200,39 @@ export class TrackerComponent implements OnInit {
 
   loadCategories(): void { }
 
-  addCategory(): void { }
+  addCategory(): void {
+    if (this.newCategory.trim() === '') {
+      return;
+    }
 
-  deleteCategory(category: string): void { }
+    if (this.categories.includes(this.newCategory)) {
+      alert('Category already exists!');
+      return;
+    }
+
+    this.categories.push(this.newCategory);
+    this.newCategory = '';
+    this.showCategoryPopup = false;
+  }
+
+  editCategory(category: string): void {
+    this.editingCategory = category;
+    this.editedCategory = category;
+  }
+
+  saveEditedCategory(): void {
+    if (!this.editedCategory.trim()) return;
+
+    const index = this.categories.indexOf(this.editingCategory!);
+    if (index !== -1) {
+      this.categories[index] = this.editedCategory;
+    }
+    this.editingCategory = null;
+  }
+
+  deleteCategory(category: string) {
+    this.categories = this.categories.filter(cat => cat !== category);
+  }
 
   validateAmount(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -259,4 +292,6 @@ export class TrackerComponent implements OnInit {
       this.expendedDayExpenses = [...this.dailyExpenses];
     }
   }
+
+
 }

@@ -37,8 +37,7 @@
                             <input #expName type="text" placeholder="Enter expense name" />
 
                             <label>Add or select category
-                                <!-- <button class="add-category-button"
-                                    (click)="toggleCategoryPopup()">+</button> -->
+                                <button class="add-category-button" (click)="toggleCategoryPopup()">+</button>
                             </label>
                             <div class="category-container">
                                 <select #expCategory>
@@ -50,9 +49,28 @@
 
                             <div *ngIf="showCategoryPopup" class="category-popup-overlay">
                                 <div class="category-popup">
-                                    <h3>Add New Category</h3>
+                                    <h3>Manage Categories</h3>
+
                                     <input type="text" [(ngModel)]="newCategory" placeholder="Enter new category" />
                                     <button class="button" (click)="addCategory()">Add</button>
+
+                                    <ul class="category-list">
+                                        <li *ngFor="let category of categories">
+                                            <span *ngIf="editingCategory !== category">{{ category }}</span>
+                                            <input *ngIf="editingCategory === category" type="text"
+                                                [(ngModel)]="editedCategory" />
+
+                                            <div class="category-buttons">
+                                                <button class="edit-btn" *ngIf="editingCategory !== category"
+                                                    (click)="editCategory(category)">Edit</button>
+                                                <button class="save-btn" *ngIf="editingCategory === category"
+                                                    (click)="saveEditedCategory()">Save</button>
+                                                <button class="delete-btn"
+                                                    (click)="deleteCategory(category)">Delete</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+
                                     <button class="button cancel-button" (click)="toggleCategoryPopup()">Cancel</button>
                                 </div>
                             </div>
@@ -110,7 +128,7 @@
                     </ul>
                     <button class="button" (click)="toggleWeeklyOverview()">Back to Tracker</button>
                 </ng-container>
-                
+
             </div>
         </div>
     </div>
