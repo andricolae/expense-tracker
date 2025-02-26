@@ -1,4 +1,6 @@
-<div *ngIf="isVisible()" class="notification">
+@if(isVisible()){
+<div class="notification">
   <h1>Eroare!</h1>
   <p>{{ message() }}</p>
 </div>
+}

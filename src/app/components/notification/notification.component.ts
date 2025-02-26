@@ -1,9 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { Component, input, Input, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 
 @Component({
   selector: 'app-notification',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './notification.component.html',
   styleUrl: './notification.component.css',
 })
