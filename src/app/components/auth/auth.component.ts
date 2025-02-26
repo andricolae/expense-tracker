@@ -9,19 +9,14 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './auth.component.html',
-  styleUrls: ['./auth.component.css']
+  styleUrls: ['./auth.component.css'],
 })
 export class AuthComponent {
   email = '';
   password = '';
   isRegistering = false;
 
-
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) { }
-
+  constructor(private router: Router, private authService: AuthService) {}
 
   toggleMode() {
     this.isRegistering = !this.isRegistering;
@@ -31,36 +26,35 @@ export class AuthComponent {
     if (this.isRegistering) {
       //sign up user
       this.authService.signup(this.email, this.password).subscribe({
-        next: (response => {
+        next: (response) => {
           console.log('User registered', response);
           this.authService.user.next(response);
           this.isRegistering = false;
-        })
-      })
-    }
-    else {
+        },
+      });
+    } else {
       //log in user
       this.authService.login(this.email, this.password).subscribe({
-        next: (response => {
+        next: (response) => {
           console.log('User logged in!', response);
           this.authService.user.next(response);
           this.router.navigate(['/home']);
-        })
-      })
+        },
+      });
     }
-
   }
 
   resetPassword() {
-    const email = prompt("Please enter your email for password reset:");
+    const email = prompt('Please enter your email for password reset:');
     if (email) {
-      this.authService.resetPassword(email).subscribe(() => {
-        alert("Password reset link has been sent to your email.");
-      }, (error) => {
-        console.error(error);
-      });
+      this.authService.resetPassword(email).subscribe(
+        () => {
+          alert('Password reset link has been sent to your email.');
+        },
+        (error) => {
+          console.error(error);
+        }
+      );
     }
-
   }
-
 }

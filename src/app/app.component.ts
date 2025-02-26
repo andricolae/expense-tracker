@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TrackerComponent } from "./pages/tracker/tracker.component";
+import { TrackerComponent } from './pages/tracker/tracker.component';
 
 // @Component({
 //   selector: 'app-root',
@@ -9,12 +9,18 @@ import { TrackerComponent } from "./pages/tracker/tracker.component";
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { CommonModule } from '@angular/common';
-
+import { NotificationComponent } from './components/notification/notification.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, CommonModule, ],  
+  imports: [
+    RouterOutlet,
+    HeaderComponent,
+    FooterComponent,
+    CommonModule,
+    NotificationComponent,
+  ],
 
   templateUrl: './app.component.html',
 })
