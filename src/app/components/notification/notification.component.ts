@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, input, Input, signal } from '@angular/core';
 
 @Component({
   selector: 'app-notification',
@@ -8,17 +8,17 @@ import { Component, Input } from '@angular/core';
   styleUrl: './notification.component.css',
 })
 export class NotificationComponent {
-  @Input() message: string = 'A apărut o eroare!';
-  isVisible: boolean = false;
+  message = input.required<string>();
+  isVisible = signal<boolean>(true);
 
   ngOnInit() {
     this.showNotification();
   }
 
   showNotification() {
-    this.isVisible = true;
+    this.isVisible.set(true);
     setTimeout(() => {
-      this.isVisible = false;
+      this.isVisible.set(false);
     }, 5000); // Notificarea dispare după 5 secunde
   }
 }
