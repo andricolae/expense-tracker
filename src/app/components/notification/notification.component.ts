@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { NotificationService } from './notification.service';
 
 @Component({
@@ -11,8 +11,4 @@ export class NotificationComponent {
   private notificationService = inject(NotificationService);
   isVisible = this.notificationService.isVisible;
   message = this.notificationService.message;
-
-  ngOnInit() {
-    this.notificationService.showNotification('ia uite ba');
-  }
 }

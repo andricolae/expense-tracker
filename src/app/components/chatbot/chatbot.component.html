@@ -1,0 +1,24 @@
+<div class="chat-container">
+  <div class="chat-header">💰 Chatbot Financiar</div>
+
+  <div class="chat-messages">
+    <div
+      *ngFor="let msg of messages"
+      [ngClass]="{
+        'user-message': msg.sender === 'user',
+        'bot-message': msg.sender === 'bot'
+      }"
+      [innerHTML]="msg.text"
+    ></div>
+    <div *ngIf="isLoading" class="loading">⏳ Se generează răspuns...</div>
+  </div>
+
+  <div class="chat-input">
+    <input
+      [(ngModel)]="userInput"
+      placeholder="Întreabă-mă despre bani..."
+      (keyup.enter)="sendMessage()"
+    />
+    <button (click)="sendMessage()">Trimite</button>
+  </div>
+</div>

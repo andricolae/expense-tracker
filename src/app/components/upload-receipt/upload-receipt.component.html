@@ -1,0 +1,16 @@
+<div class="upload-container">
+  <input type="file" (change)="onFileSelected($event)" accept="image/*" />
+  <button mat-raised-button (click)="processImage()">Extract Expenses</button>
+</div>
+
+<img *ngIf="imageUrl" [src]="imageUrl" class="preview-image" />
+<h3 *ngIf="extractedText">Text extras:</h3>
+<pre *ngIf="extractedText">{{ extractedText }}</pre>
+
+<h3 *ngIf="extractedExpenses.length">Cheltuieli extrase:</h3>
+<ul>
+  <li *ngFor="let expense of extractedExpenses">
+    <strong>{{ expense.name }}</strong> - {{ expense.price }} RON
+    <span style="color: gray"> ({{ expense.category }}) </span>
+  </li>
+</ul>

@@ -10,6 +10,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { CommonModule } from '@angular/common';
 import { NotificationComponent } from './components/notification/notification.component';
+import { ChatbotComponent } from './components/chatbot/chatbot.component';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,7 @@ import { NotificationComponent } from './components/notification/notification.co
     FooterComponent,
     CommonModule,
     NotificationComponent,
+    ChatbotComponent,
   ],
 
   templateUrl: './app.component.html',
