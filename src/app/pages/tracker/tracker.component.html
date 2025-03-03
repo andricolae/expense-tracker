@@ -70,7 +70,8 @@
                           (click)="editCategory(category)">Edit</button>
                         <button class="save-btn" *ngIf="editingCategory === category.id"
                           (click)="saveEditedCategory()">Save</button>
-                        <button class="delete-btn" *ngIf="!category.isDefault" (click)="deleteCategory(category)">Delete</button>
+                        <button class="delete-btn" *ngIf="!category.isDefault"
+                          (click)="deleteCategory(category)">Delete</button>
                       </div>
                     </li>
                   </ul>
@@ -131,31 +132,34 @@
           <ul class="week-summary">
             <li *ngFor="let day of days" (click)="toggleDayExpenses(day)" class="clickable-day">
               {{ day }}: {{ dailyTotals[day] | number : "1.2-2" }} €
-              <div *ngIf="expendedDay === day" class="expense-list">
+
+              <div *ngIf="expendedDays[day]" class="expense-list">
                 <h4>Expenses for {{ day }}</h4>
-                <div *ngIf="expendedDayExpenses.length > 0">
-                  <div class="expense-item" *ngFor="let _expense of expendedDayExpenses">
+
+                <div *ngIf="expendedDayExpenses[day]?.length">
+                  <div class="expense-item" *ngFor="let _expense of expendedDayExpenses[day]">
                     <div class="expense-info">
                       <span class="expense-name">{{ _expense.name }}</span>
-                      <span class="expense-category">{{
-                        _expense.category.name
-                        }}</span>
+                      <span class="expense-category">{{ _expense.category.name }}</span>
                     </div>
                     <div class="expense-amount">
                       {{ _expense.amount | number : "1.2-2" }} €
                     </div>
                   </div>
                 </div>
-                <p *ngIf="expendedDayExpenses.length === 0">
+
+                <p *ngIf="expendedDayExpenses[day]?.length === 0">
                   No expenses recorded for {{ day }}
                 </p>
               </div>
             </li>
           </ul>
+
           <button class="button" (click)="toggleWeeklyOverview()">
             Back to Tracker
           </button>
         </ng-container>
+
       </div>
     </div>
   </div>

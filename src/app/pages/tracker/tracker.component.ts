@@ -65,8 +65,25 @@ export class TrackerComponent implements OnInit {
 
   expense: any[] = [];
 
-  expendedDay: DayOfWeek | null = null;
-  expendedDayExpenses: Expense[] = [];
+  expendedDayExpenses: Record<DayOfWeek, Expense[]> = {
+    Monday: [],
+    Tuesday: [],
+    Wednesday: [],
+    Thursday: [],
+    Friday: [],
+    Saturday: [],
+    Sunday: [],
+  };
+
+  expendedDays: Record<DayOfWeek, boolean> = {
+    Monday: false,
+    Tuesday: false,
+    Wednesday: false,
+    Thursday: false,
+    Friday: false,
+    Saturday: false,
+    Sunday: false,
+  };
 
   editingCategory: string | null = null;
   editedCategory: string = '';
@@ -110,9 +127,16 @@ export class TrackerComponent implements OnInit {
     }
   }
 
-  toggleWeeklyOverview() {
+  async toggleWeeklyOverview() {
     this.showWeeklyOverview = !this.showWeeklyOverview;
     this.showExpenseForm = false;
+  
+    if (this.showWeeklyOverview) {
+      for (const day of this.days) {
+        this.expendedDays[day] = true;
+        this.expendedDayExpenses[day] = await this.crudService.getByDay(day);
+      }
+    }
   }
 
   getCurrentDay(): DayOfWeek {
@@ -369,13 +393,14 @@ export class TrackerComponent implements OnInit {
   }
 
   async toggleDayExpenses(day: DayOfWeek) {
-    if (this.expendedDay === day) {
-      this.expendedDay = null;
-      this.expendedDayExpenses = [];
+    this.expendedDays[day] = !this.expendedDays[day]; 
+    if (this.expendedDays[day]) {
+      this.expendedDayExpenses[day] = await this.crudService.getByDay(day);
     } else {
-      this.expendedDay = day;
-      this.expendedDayExpenses = await this.crudService.getByDay(day);
-      this.cdr.detectChanges();
+      this.expendedDayExpenses[day] = []; 
     }
+  
+    this.cdr.detectChanges(); 
   }
+
 }
