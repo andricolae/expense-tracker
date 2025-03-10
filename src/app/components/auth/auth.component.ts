@@ -3,11 +3,14 @@ import { Router } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { SpinnerService } from '../../services/spinner.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css']
 })
@@ -22,8 +25,8 @@ export class AuthComponent {
 
   constructor(
     private router: Router,
-    private authService: AuthService
-  ) { }
+    private authService: AuthService,
+    private spinnerService: SpinnerService) { }
 
   ngOnInit() {
     this.authService.user.subscribe(user => {
@@ -49,8 +52,10 @@ export class AuthComponent {
       return;
     }
 
+    this.spinnerService.showSpinner();
+
     if (this.isResetting) {
-      this.authService.resetPassword(this.email).subscribe(
+      this.authService.resetPassword(this.email).pipe(finalize(() => this.spinnerService.hideSpinner())).subscribe(
         () => {
           this.resetMessage = "Password reset link has been sent to your email.";
         },
@@ -62,10 +67,11 @@ export class AuthComponent {
     } else if (this.isRegistering) {
       if (this.password !== this.confirmPassword) {
         this.resetMessage = "Passwords do not match!";
+        this.spinnerService.hideSpinner();
         return;
       }
 
-      this.authService.signup(this.email, this.password).subscribe({
+      this.authService.signup(this.email, this.password).pipe(finalize(() => this.spinnerService.hideSpinner())).subscribe({
         next: response => {
           console.log('User registered', response);
           this.isRegistering = false;
@@ -73,7 +79,7 @@ export class AuthComponent {
         }
       });
     } else {
-      this.authService.login(this.email, this.password).subscribe({
+      this.authService.login(this.email, this.password).pipe(finalize(() => this.spinnerService.hideSpinner())).subscribe({
         next: response => {
           console.log('User logged in!', response);
           this.router.navigate(['/track']);
@@ -90,7 +96,9 @@ export class AuthComponent {
       return;
     }
 
-    this.authService.resetPassword(this.email).subscribe(
+    this.spinnerService.showSpinner();
+
+    this.authService.resetPassword(this.email).pipe(finalize(() => this.spinnerService.hideSpinner())).subscribe(
       () => {
         this.resetMessage = "Password reset link has been sent to your email!";
       },
