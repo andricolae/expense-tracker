@@ -126,18 +126,7 @@ export class TrackerComponent implements OnInit {
 
   //Excel-------------------------------------------------------------
 
-  exportToExcel(): void {
-    // const dataForExcel = this.weeklySpending.flatMap((day) =>
-    //   day.expenses.map((expense) => ({
-    //     Date: day.date,
-    //     Day: day.dayName,
-    //     Name: expense.name,
-    //     Category: expense.category,
-    //     Amount: expense.amount,
-    //   }))
-    // );
-    // this.excelService.generateExcel(dataForExcel, 'Weekly_Expenses');
-  }
+  exportToExcel(): void {}
 
   //------------------------------------------------------------------
 
@@ -158,69 +147,7 @@ export class TrackerComponent implements OnInit {
     }
   }
 
-  processImage(): void {
-    // if (!this.selectedFile) {
-    //   this.notificationService.showNotification(
-    //     'Please select a file before extracting!',
-    //     'error'
-    //   );
-    //   return;
-    // }
-    // this.spinnerService.showSpinner();
-    // const reader = new FileReader();
-    // reader.onload = () => {
-    //   const base64Image = (reader.result as string).split(',')[1];
-    //   this.ocrService.extractText(base64Image).subscribe((response) => {
-    //     if (response.responses && response.responses.length > 0) {
-    //       this.extractedText =
-    //         response.responses[0].fullTextAnnotation?.text || '';
-    //       if (!this.extractedText.trim()) {
-    //         this.notificationService.showNotification(
-    //           'No text found in the image!',
-    //           'warning'
-    //         );
-    //         return;
-    //       }
-    //       this.scanReceiptAndExtractExpenses(this.extractedText);
-    //     }
-    //   });
-    // };
-    // reader.onerror = () => {
-    //   this.notificationService.showNotification(
-    //     'Error reading the image file!',
-    //     'error'
-    //   );
-    // };
-    // reader.readAsDataURL(this.selectedFile);
-  }
-
-  scanReceiptAndExtractExpenses(ocrText: string): void {
-    // const userId = this.authService.getId()!;
-    // const today = new Date().toISOString().split('T')[0];
-    // this.spinnerService.showSpinner();
-    // this.geminiService
-    //   .extractExpenses(ocrText)
-    //   .pipe(finalize(() => this.spinnerService.hideSpinner()))
-    //   .subscribe((response) => {
-    //     let rawText = response.candidates[0]?.content?.parts[0]?.text || '[]';
-    //     const cleanedText = rawText
-    //       .replace(/^```json\s*/, '')
-    //       .replace(/```$/, '');
-    //     const extractedExpenses = JSON.parse(cleanedText);
-    //     this.extractedExpenses = extractedExpenses.map((expense: any) => ({
-    //       ...expense,
-    //       date: today,
-    //       userId: userId,
-    //     }));
-    //     this.addExtractedExpensesToDatabase(this.extractedExpenses);
-    //   });
-  }
-
-  // addExtractedExpensesToDatabase(expenses: Expense2[]) {
-  //   expenses.forEach((expense) => {
-  //     this.addExpense(expense);
-  //   });
-  // }
+  processImage(): void {}
 
   //------------------------------------------------------------------
 
@@ -233,16 +160,6 @@ export class TrackerComponent implements OnInit {
     // this.expensesAnalysisService.sendWeeklyExpensesToGemini(
     //   this.weeklySpending
     // );
-    // const allExpenses = this.weeklySpending.flatMap((day) => day.expenses);
-    // this.spinnerService.showSpinner();
-    // this.geminiService
-    //   .analyzeWeeklyExpenses(allExpenses)
-    //   .pipe(finalize(() => this.spinnerService.hideSpinner()))
-    //   .subscribe((response) => {
-    //     const analysis = response.candidates[0]?.content?.parts[0]?.text;
-    //     console.log('Gemini Analysis:', analysis);
-    //     this.weeklyAnalysis = analysis;
-    //   });
   }
 
   //------------------------------------------------------------------

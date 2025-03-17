@@ -1,5 +1,5 @@
 .background-container {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +13,6 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
- 
 }
 
 .form {
@@ -36,7 +35,7 @@
   transition: all 0.3s ease;
 }
 
-.form:hover{
+.form:hover {
   transform: scale(1.1);
   background-color: #ffea97;
 }
@@ -159,12 +158,12 @@ p {
 }
 
 .right-section {
-  background-image: url("../../../../public/login-background.png"); 
+  background-image: url("../../../../../public/login-background.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   width: 50%;
-  height: 45%; 
+  height: 45%;
   text-decoration: none;
   font-weight: normal;
   padding: 10px 20px;
