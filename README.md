@@ -19,9 +19,40 @@ The Expense Tracker is an internal Angular application developed as part of the 
 
 ### Prerequisites
 
-* Node.js (v16.0 or higher)
-* Angular CLI (v14.0 or higher)
-* npm (v8.0 or higher)
+* Node.js (v20.0 or higher)
+* Angular CLI (v19.0 or higher)
+* npm (v10.0 or higher)
+* Firebase account
+
+### Firebase Config
+
+This project uses Firebase services and requires configuration via environment variables. For security reasons, Firebase credentials should not be committed to the repository.
+
+#### Prerequisites:
+
+1. You need a Firebase account. If you don't have one, sign up at firebase.google.com.
+2. Create a new Firebase project or use an existing one.
+3. Configure the following services in your Firebase project:
+   * Firebase Authentication
+   * Cloud Firestore
+   * Realtime Database
+   * Firebase Storage
+   * Google Analytics (optional, but required for the measurement ID)
+
+#### Getting your Firebase Configuration Keys:
+
+1. Go to the Firebase Console
+2. Select your project
+3. Click on the gear icon (⚙️) next to "Project Overview" to access Project settings
+4. Scroll down to "Your apps" section and select your web app (or create one by clicking the web icon </> if you haven't added one yet)
+5. Under the "SDK setup and configuration" section, you'll find your Firebase configuration object which contains all the required keys
+6. For Google Vision API and Gemini API keys, you'll need to enable these services in the Google Cloud Console associated with your Firebase project
+
+#### Additional Firebase Setup:
+
+1. Firebase Authentication: Enable the authentication methods you plan to use (Email/Password, Google, etc.)
+2. Cloud Firestore: Create a new database and set up appropriate security rules
+3. Realtime Database: Create a database and configure security rules
 
 ### Instalation
 
@@ -45,10 +76,30 @@ npm install
 
 #### Set up environment variables:
 
+Create a .env file in the root directory of the project with the following structure:
+
 ```bash
-cp .env.example .env
+CopyAPI_KEY="your-firebase-api-key"
+AUTH_DOM="your-firebase-auth-domain"
+PROJ_ID="your-firebase-project-id"
+STORAGE="your-firebase-storage-bucket"
+MESS_SEND_ID="your-firebase-messaging-sender-id"
+APP_ID="your-firebase-app-id"
+MEASURE_ID="your-firebase-measurement-id"
+GOGL_VISION="your-google-vision-api-key"
+GMNI="your-gemini-api-key"
+DB_URL="your-firebase-database-url"
 ```
-Then edit the .env file with appropriate values for your environment.
+
+Replace the placeholder values with your project credentials. You can find these values in your Firebase/Google Vision/Google Gemini project settings.
+
+```json
+"start": "node -r dotenv/config mynode.js && ng serve",
+```
+The "start" option in package.json will make sure to generate the environment variable script for you, based on the values you provide in the .env file, which will be used by the application.
+
+> [!CAUTION]
+> Never commit your .env or environment.ts file to version control. It contains sensitive API keys and credentials.
 
 #### Start the development server:
 
@@ -69,8 +120,7 @@ State management using NgRx for predictable data flow
 
 #### Tech Stack
 
-Frontend: Angular 14, TypeScript, RxJS
-UI Components: Angular Material
+Frontend: Angular 19, TypeScript
 Authentication: Firebase Auth
 CI/CD: Github and Vercel
 
