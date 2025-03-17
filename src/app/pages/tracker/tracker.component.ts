@@ -1,56 +1,18 @@
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-  ChangeDetectorRef,
-} from '@angular/core';
-import {
-  TrackerConfigService,
-  TrackerConfig,
-} from '../../services/tracker-config.service';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CrudService } from '../../services/crud.service';
-import {
-  CreateExpenseDTO,
-  DayOfWeek,
-  Expense,
-  UpdateExpenseDTO,
-  Category,
-} from '../../models/expense.model';
-import { ConfirmDialogService } from '../../services/confirm-dialog.service';
-import { PieComponent } from '../../components/pie/pie.component';
-import { ExcelService } from '../../services/excel.service';
-import { GeminiService } from '../../services/gemini.service';
-import { OcrService } from '../../services/ocr.service';
-import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
-import { ExpensesCrudService } from '../../services/expenses-crud.service';
-import { Expense2 } from '../../services/expenses-crud.service';
-import { AuthService } from '../../services/auth.service';
-import { SpinnerService } from '../../services/spinner.service';
-import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
-import { finalize } from 'rxjs';
-import {
-  _Category,
-  CategoryCrudService,
-} from '../../services/category-crud.service';
-import { NotificationComponent } from '../../components/notification/notification.component';
-import { NotificationService } from '../../services/notification.service';
-import { PopoutComponent } from '../../components/popout/popout.component';
-import { PopoutService } from '../../components/popout/popout.service';
-import {
-  WeeklyBudget,
-  WeeklyBudgetService,
-} from '../../services/weekly-budget.service';
-
-interface DaySpending {
-  date: string;
-  dayName: string;
-  expenses: Expense2[];
-  total: number;
-  isExpanded?: boolean;
-}
+import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
+import { PieComponent } from '../../shared/components/pie/pie.component';
+import { SpinnerService } from '../../shared/services/spinner.service';
+import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { NotificationService } from '../../shared/services/notification.service';
+import { AuthService } from '../../core/authentication/auth.service';
+import { ChatbotComponent } from '../../features/chatbot/chatbot.component';
+import { ExpensesAnalysisService } from '../../features/expenses/expenses-analysis/expenses-analysis.service';
+import { TrackerCategoryService } from './services/tracker-category.service';
+import { Expense } from '../../features/expenses/models/spending.model';
+import { TrackerExpensesService } from './services/tracker-expenses.service';
+import { NotificationComponent } from '../../shared/components/notification/notification.component';
 
 @Component({
   selector: 'app-tracker',
@@ -63,78 +25,101 @@ interface DaySpending {
     NotificationComponent,
     NgIf,
     LoadingSpinnerComponent,
-    PopoutComponent,
   ],
   templateUrl: './tracker.component.html',
   styleUrls: ['./tracker.component.css'],
 })
 export class TrackerComponent implements OnInit {
-  categories: _Category[] = [];
-  filteredCategories: _Category[] = [];
+  //CATEGORIES V2 -------------------------------------------------------
+  private trackerCategoriesService = inject(TrackerCategoryService);
+  categories = this.trackerCategoriesService.categories;
+
+  private loadCategories() {
+    this.trackerCategoriesService.getCategories();
+  }
+
+  addCategory() {
+    this.trackerCategoriesService.addCategory(this.newCategory);
+  }
+
+  deleteCategory(categoryId: string) {
+    this.trackerCategoriesService.deleteCategory(categoryId);
+  }
+
+  editCategory(category: { id: string; name: string }) {}
+
+  saveEditedCategory(categoryId: string) {}
+
+  //EXPENSES V2
+
+  private trackerExpensesService = inject(TrackerExpensesService);
+  expenses = this.trackerExpensesService.expenses;
+
+  loadExpenses(date: string) {
+    this.trackerExpensesService.loadUserExpensesByDate(date);
+  }
+
+  addExpense(newExpense: Expense) {
+    this.trackerExpensesService.addExpense('2025-03-10', newExpense);
+  }
+
+  updateExpense(): void {
+    const updatedExpense = this.updatedItem();
+    this.resetSavingForm();
+    this.trackerExpensesService.editExpense(
+      '2025-03-10',
+      updatedExpense.id!,
+      updatedExpense
+    );
+  }
+
+  private delete(day: string, idExpense: string) {
+    this.trackerExpensesService.deleteExpense(day, idExpense);
+  }
 
   //Services---------------------------------------------------------
   constructor(
-    private budgetService: WeeklyBudgetService,
-    private popoutService: PopoutService,
     private authService: AuthService,
-    //private trackerConfigService: TrackerConfigService,
-    //private crudService: CrudService,
     private cdr: ChangeDetectorRef,
     private confirmDialogService: ConfirmDialogService,
-    private excelService: ExcelService,
-    private ocrService: OcrService,
-    private geminiService: GeminiService,
-    private expensesCrudService: ExpensesCrudService,
     private spinnerService: SpinnerService,
-    private categoryCrudService: CategoryCrudService,
     private notificationService: NotificationService
   ) {}
 
+  //AICIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+
   ngOnInit() {
-    this.spinnerService.showSpinner();
-    this.loadTodayExpenses();
-    this.loadWeekDays();
-    this.loadExpensesForWeek(this.week);
     this.loadCategories();
-    this.filteredCategories = [...this.categories];
+    this.loadExpenses('2025-03-10');
+
+    /////////////////////////////
+    // this.spinnerService.showSpinner();
+    // this.loadTodayExpenses();
+    this.loadWeekDays();
+    // this.loadExpensesForWeek(this.week);
     const { startDate, endDate } = this.getWeekInterval(
       new Date().toISOString().split('T')[0]
     );
     this.currentWeekStart = startDate.toISOString().split('T')[0];
     this.currentWeekEnd = endDate.toISOString().split('T')[0];
 
-    this.budgetService
-      .getBudgetForUserByDate(this.authService.getId()!, this.currentWeekEnd)
-      .subscribe((resp) => {
-        //here goes implementation
-        console.log('aici:', resp);
-        if (resp == null || resp == undefined) {
-          const newBudget: WeeklyBudget = {
-            weeklyBudget: 0,
-            currentSpending: this.getWeeklyTotal(),
-            startDate: this.currentWeekEnd,
-            userId: this.authService.getId()!,
-          };
+    // this.categories = this.trackerCategoriesService.categories;
+    // this.budgetService
+    //   .getBudgetForUserByDate(this.authService.getId()!, this.currentWeekEnd)
+    //   .subscribe((resp) => {
+    //     //here goes implementation
+    //     console.log('aici:', resp);
+    //     if (resp == null || resp == undefined) {
+    //       const newBudget: WeeklyBudget = {
+    //         weeklyBudget: 0,
+    //         currentSpending: this.getWeeklyTotal(),
+    //         startDate: this.currentWeekEnd,
+    //         userId: this.authService.getId()!,
+    //       };
 
-          this.popoutService.showPopup(newBudget);
-          // const budget = this.popoutService.inputValue();
-          // console.log('aici3:', budget, this.popoutService.inputValue());
-
-          // if (budget != '') {
-          // const newBudget: WeeklyBudget = {
-          //   weeklyBudget: Number(budget),
-          //   currentSpending: this.getWeeklyTotal(),
-          //   startDate: this.currentWeekEnd,
-          //   userId: this.authService.getId()!,
-          // };
-          //   this.budgetService
-          //     .addWeeklyBudget(newBudget)
-          //     .subscribe((response) => {
-          //       console.log(response);
-          //     });
-          // }
-        }
-      });
+    //       this.popoutService.showPopup(newBudget);
+    //     }
+    //   });
   }
 
   //------------------------------------------------------------------
@@ -142,17 +127,16 @@ export class TrackerComponent implements OnInit {
   //Excel-------------------------------------------------------------
 
   exportToExcel(): void {
-    const dataForExcel = this.weeklySpending.flatMap((day) =>
-      day.expenses.map((expense) => ({
-        Date: day.date,
-        Day: day.dayName,
-        Name: expense.name,
-        Category: expense.category,
-        Amount: expense.amount,
-      }))
-    );
-
-    this.excelService.generateExcel(dataForExcel, 'Weekly_Expenses');
+    // const dataForExcel = this.weeklySpending.flatMap((day) =>
+    //   day.expenses.map((expense) => ({
+    //     Date: day.date,
+    //     Day: day.dayName,
+    //     Name: expense.name,
+    //     Category: expense.category,
+    //     Amount: expense.amount,
+    //   }))
+    // );
+    // this.excelService.generateExcel(dataForExcel, 'Weekly_Expenses');
   }
 
   //------------------------------------------------------------------
@@ -161,7 +145,6 @@ export class TrackerComponent implements OnInit {
 
   imageUrl: string | ArrayBuffer | null = null;
   extractedText: string = '';
-  extractedExpenses: Expense2[] = [];
   selectedFile: File | null = null;
 
   onFileSelected(event: Event): void {
@@ -176,115 +159,95 @@ export class TrackerComponent implements OnInit {
   }
 
   processImage(): void {
-    if (!this.selectedFile) {
-      this.notificationService.showNotification(
-        'Please select a file before extracting!',
-        'error'
-      );
-      return;
-    }
-
-    this.spinnerService.showSpinner();
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64Image = (reader.result as string).split(',')[1];
-      this.ocrService.extractText(base64Image).subscribe((response) => {
-        if (response.responses && response.responses.length > 0) {
-          this.extractedText =
-            response.responses[0].fullTextAnnotation?.text || '';
-
-          if (!this.extractedText.trim()) {
-            this.notificationService.showNotification(
-              'No text found in the image!',
-              'warning'
-            );
-            return;
-          }
-
-          this.scanReceiptAndExtractExpenses(this.extractedText);
-        }
-      });
-    };
-
-    reader.onerror = () => {
-      this.notificationService.showNotification(
-        'Error reading the image file!',
-        'error'
-      );
-    };
-
-    reader.readAsDataURL(this.selectedFile);
+    // if (!this.selectedFile) {
+    //   this.notificationService.showNotification(
+    //     'Please select a file before extracting!',
+    //     'error'
+    //   );
+    //   return;
+    // }
+    // this.spinnerService.showSpinner();
+    // const reader = new FileReader();
+    // reader.onload = () => {
+    //   const base64Image = (reader.result as string).split(',')[1];
+    //   this.ocrService.extractText(base64Image).subscribe((response) => {
+    //     if (response.responses && response.responses.length > 0) {
+    //       this.extractedText =
+    //         response.responses[0].fullTextAnnotation?.text || '';
+    //       if (!this.extractedText.trim()) {
+    //         this.notificationService.showNotification(
+    //           'No text found in the image!',
+    //           'warning'
+    //         );
+    //         return;
+    //       }
+    //       this.scanReceiptAndExtractExpenses(this.extractedText);
+    //     }
+    //   });
+    // };
+    // reader.onerror = () => {
+    //   this.notificationService.showNotification(
+    //     'Error reading the image file!',
+    //     'error'
+    //   );
+    // };
+    // reader.readAsDataURL(this.selectedFile);
   }
 
   scanReceiptAndExtractExpenses(ocrText: string): void {
-    const userId = this.authService.getId()!;
-    const today = new Date().toISOString().split('T')[0];
-
-    this.spinnerService.showSpinner();
-
-    this.geminiService
-      .extractExpenses(ocrText)
-      .pipe(finalize(() => this.spinnerService.hideSpinner()))
-      .subscribe((response) => {
-        let rawText = response.candidates[0]?.content?.parts[0]?.text || '[]';
-        const cleanedText = rawText
-          .replace(/^```json\s*/, '')
-          .replace(/```$/, '');
-        const extractedExpenses = JSON.parse(cleanedText);
-        this.extractedExpenses = extractedExpenses.map((expense: any) => ({
-          ...expense,
-          date: today,
-          userId: userId,
-        }));
-        this.addExtractedExpensesToDatabase(this.extractedExpenses);
-      });
+    // const userId = this.authService.getId()!;
+    // const today = new Date().toISOString().split('T')[0];
+    // this.spinnerService.showSpinner();
+    // this.geminiService
+    //   .extractExpenses(ocrText)
+    //   .pipe(finalize(() => this.spinnerService.hideSpinner()))
+    //   .subscribe((response) => {
+    //     let rawText = response.candidates[0]?.content?.parts[0]?.text || '[]';
+    //     const cleanedText = rawText
+    //       .replace(/^```json\s*/, '')
+    //       .replace(/```$/, '');
+    //     const extractedExpenses = JSON.parse(cleanedText);
+    //     this.extractedExpenses = extractedExpenses.map((expense: any) => ({
+    //       ...expense,
+    //       date: today,
+    //       userId: userId,
+    //     }));
+    //     this.addExtractedExpensesToDatabase(this.extractedExpenses);
+    //   });
   }
 
-  addExtractedExpensesToDatabase(expenses: Expense2[]) {
-    expenses.forEach((expense) => {
-      this.addExpense(expense);
-    });
-  }
+  // addExtractedExpensesToDatabase(expenses: Expense2[]) {
+  //   expenses.forEach((expense) => {
+  //     this.addExpense(expense);
+  //   });
+  // }
 
   //------------------------------------------------------------------
 
   //AI Analysis
 
-  weeklyAnalysis: string = '';
+  private expensesAnalysisService = inject(ExpensesAnalysisService);
+  weeklyAnalysis = this.expensesAnalysisService.weeklyAnalysis;
 
   sendWeeklyExpensesToGemini(): void {
-    const allExpenses = this.weeklySpending.flatMap((day) => day.expenses);
-
-    this.spinnerService.showSpinner();
-
-    this.geminiService
-      .analyzeWeeklyExpenses(allExpenses)
-      .pipe(finalize(() => this.spinnerService.hideSpinner()))
-      .subscribe((response) => {
-        const analysis = response.candidates[0]?.content?.parts[0]?.text;
-        console.log('Gemini Analysis:', analysis);
-
-        this.weeklyAnalysis = analysis;
-      });
+    // this.expensesAnalysisService.sendWeeklyExpensesToGemini(
+    //   this.weeklySpending
+    // );
+    // const allExpenses = this.weeklySpending.flatMap((day) => day.expenses);
+    // this.spinnerService.showSpinner();
+    // this.geminiService
+    //   .analyzeWeeklyExpenses(allExpenses)
+    //   .pipe(finalize(() => this.spinnerService.hideSpinner()))
+    //   .subscribe((response) => {
+    //     const analysis = response.candidates[0]?.content?.parts[0]?.text;
+    //     console.log('Gemini Analysis:', analysis);
+    //     this.weeklyAnalysis = analysis;
+    //   });
   }
 
   //------------------------------------------------------------------
 
   //UI Expenses--------------------------------------------------------
-
-  // categories: Category[] = [
-  //   'Groceries',
-  //   'Taxes',
-  //   'Entertainment',
-  //   'Education',
-  //   'Clothing',
-  //   'Healthcare',
-  //   'Sports',
-  //   'Travel',
-  //   'Gifts',
-  //   'Miscellaneous',
-  // ];
 
   selectedDay: { date: string; dayName: string } | undefined = undefined;
 
@@ -365,29 +328,26 @@ export class TrackerComponent implements OnInit {
     return this.week.find((day) => day.date === date);
   }
 
+  //BOASSSSSSSSSS
   loadWeekDays(startDate: string = new Date().toISOString().split('T')[0]) {
     this.displayedWeekStart = startDate;
     this.week = this.getCurrentWeekWithDays(startDate);
     this.selectedDay = this.findDayByDate(startDate);
-    this.expenses2 = [];
-    this.loadExpensesForWeek(this.week); // Load expenses for the selected week
+    // this.expenses2 = [];
+    // this.loadExpensesForWeek(this.week); // Load expenses for the selected week
   }
 
   //------------------------------------------------------------------
 
   //CRUD EXPENSES------------------------------------------------------
 
-  expenses2: Expense2[] = [];
-
   //CREATE
 
   private createNewItem() {
-    const newExpense: Expense2 = {
+    const newExpense: Expense = {
       name: this.expenseName,
       amount: this.expenseAmount!,
-      date: this.selectedDay!.date,
       category: this.selectedCategory,
-      userId: this.authService.getId()!,
     };
     return newExpense;
   }
@@ -411,93 +371,32 @@ export class TrackerComponent implements OnInit {
     this.addExpense(newExpense);
   }
 
-  addExpense(newExpense: Expense2) {
-    this.expensesCrudService.addExpense(newExpense).subscribe((response) => {
-      this.notificationService.showNotification(
-        'Expense added successfully!',
-        'success'
-      );
-      this.loadExpensesForUserOnDate(this.selectedDay!.date);
-    });
-  }
-
   //READ
 
-  loadTodayExpenses() {
-    this.loadExpensesForUserOnDate(new Date().toISOString().split('T')[0]);
-  }
-
-  loadExpenses(): void {
-    this.expensesCrudService
-      .getExpensesForUser(this.authService.getId()!)
-      .subscribe((expenses) => {
-        this.expenses2 = expenses;
-      });
-  }
-
-  loadExpensesForUserOnDate(date: string) {
-    this.spinnerService.showSpinner();
-    this.expensesCrudService
-      .loadExpensesForUserOnDate(this.authService.getId()!, date)
-      .pipe(finalize(() => this.spinnerService.hideSpinner()))
-      .subscribe((expenses) => {
-        this.expenses2 = expenses;
-      });
-  }
-
-  weeklySpending: DaySpending[] = [];
-
-  loadExpensesForWeek(week: { date: string; dayName: string }[]): void {
-    this.spinnerService.showSpinner();
-    this.expensesCrudService
-      .getExpensesForUser(this.authService.getId()!)
-      .pipe(finalize(() => this.spinnerService.hideSpinner()))
-      .subscribe((expenses) => {
-        this.expenses2 = [];
-        this.weeklySpending = week.map((day) => {
-          const expensesForDay = expenses.filter(
-            (exp) => exp.date === day.date
-          );
-          const total = expensesForDay.reduce(
-            (sum, exp) => sum + exp.amount,
-            0
-          );
-
-          return {
-            date: day.date,
-            dayName: day.dayName,
-            expenses: expensesForDay,
-            total: total,
-            isExpanded: true,
-          };
-        });
-
-        this.selectedDay = this.week[0];
-        this.loadExpensesForUserOnDate(this.selectedDay.date);
-      });
-  }
+  // weeklySpending: DaySpending[] = [];
 
   urBudget = -1;
   getWeeklyTotal(): number {
-    this.budgetService
-      .getBudgetForUserByDate(this.authService.getId()!, this.currentWeekEnd)
-      .subscribe((resp) => {
-        if (resp != undefined && resp != null) {
-          this.urBudget = resp!.weeklyBudget;
-        }
-      });
-    return this.weeklySpending.reduce((sum, day) => sum + day.total, 0);
+    // this.budgetService
+    //   .getBudgetForUserByDate(this.authService.getId()!, this.currentWeekEnd)
+    //   .subscribe((resp) => {
+    //     if (resp != undefined && resp != null) {
+    //       this.urBudget = resp!.weeklyBudget;
+    //     }
+    //   });
+    // return this.weeklySpending.reduce((sum, day) => sum + day.total, 0);
+    return 0;
   }
 
   getWeeklyCategoryTotals(): { category: string; total: number }[] {
     const categoryMap = new Map<string, number>();
 
-    for (const day of this.weeklySpending) {
-      for (const expense of day.expenses) {
-        const currentAmount = categoryMap.get(expense.category) || 0;
-        categoryMap.set(expense.category, currentAmount + expense.amount);
-      }
-    }
+    // for (const day of this.weeklySpending) {
+    //   for (const expense of day.expenses) {
+    //     const currentAmount = categoryMap.get(expense.category) || 0;
+    //     categoryMap.set(expense.category, currentAmount + expense.amount);
+    //   }
+    // }
 
     return Array.from(categoryMap.entries()).map(([category, total]) => ({
       category,
@@ -507,7 +406,7 @@ export class TrackerComponent implements OnInit {
 
   //UPDATE
 
-  private updateModeForm(expense: Expense2) {
+  private updateModeForm(expense: Expense) {
     if (!expense) return;
 
     this.isEditing = true;
@@ -515,14 +414,14 @@ export class TrackerComponent implements OnInit {
     this.isSaveDisabled = true;
   }
 
-  private showDataForUpdateMode(expense: Expense2) {
+  private showDataForUpdateMode(expense: Expense) {
     this.expenseName = expense.name;
     this.selectedCategory = expense.category;
     this.expenseAmount = expense.amount;
     this.editingExpenseId = expense.id!;
   }
 
-  turnOnUpdateMode(expense: Expense2) {
+  turnOnUpdateMode(expense: Expense) {
     this.updateModeForm(expense);
     this.showDataForUpdateMode(expense);
   }
@@ -533,18 +432,6 @@ export class TrackerComponent implements OnInit {
     return updatedItem;
   }
 
-  updateExpense2(): void {
-    const updatedExpense = this.updatedItem();
-    this.resetSavingForm();
-    this.spinnerService.showSpinner();
-    this.expensesCrudService
-      .updateExpense(updatedExpense)
-      .pipe(finalize(() => this.spinnerService.hideSpinner()))
-      .subscribe(() => {
-        this.loadExpensesForUserOnDate(this.selectedDay!.date);
-      });
-  }
-
   //DELETE
 
   private verifyDeletion() {
@@ -553,21 +440,9 @@ export class TrackerComponent implements OnInit {
     });
   }
 
-  private delete(expense: Expense2) {
-    if (expense.id) {
-      this.expensesCrudService
-        .deleteExpense(expense.id)
-        .pipe(finalize(() => this.spinnerService.hideSpinner()))
-        .subscribe(() => {
-          this.loadExpensesForUserOnDate(this.selectedDay!.date);
-        });
-    }
-  }
-
-  deleteExpense2(expense: Expense2): void {
+  deleteExpense2(expense: Expense): void {
     this.verifyDeletion().subscribe(() => {
-      this.spinnerService.showSpinner();
-      this.delete(expense);
+      this.delete('2025-03-10', expense.id!);
       this.notificationService.showNotification(
         'Expense deleted successfully!',
         'success'
@@ -684,88 +559,17 @@ export class TrackerComponent implements OnInit {
   editingExpenseId: string | null = null;
 
   expendedDay: { date: string; dayName: string } | null = null;
-  expendedDayExpenses: Expense2[] = [];
+  // expendedDayExpenses: Expense2[] = [];
 
   newCategory = '';
 
   editingCategory: string | undefined = undefined;
   editedCategory: string = '';
 
-  loadCategories() {
-    const userId = this.authService.getId();
-    if (!userId) {
-      console.error('No user ID found');
-      return;
-    }
-
-    this.categoryCrudService.getCategoriesForUser(userId).subscribe({
-      next: (categories) => {
-        this.categories = categories;
-        this.filteredCategories = categories;
-      },
-      error: (err) => {
-        console.error('Error loading categories:', err);
-      },
-      complete: () => {},
-    });
-  }
-
   toggleCategoryPopup() {
     this.showCategoryPopup = !this.showCategoryPopup;
     this.newCategory = '';
-    this.filterCategories();
   }
-
-  addCategory() {
-    this.categoryCrudService
-      .addCategory(this.newCategory, this.authService.getId()!)
-      .subscribe((response) => {});
-    this.newCategory = '';
-    this.loadCategories();
-    // this.filterCategories();
-  }
-
-  deleteCategory(categoryId: string) {
-    this.verifyDeletion().subscribe(() => {
-      this.spinnerService.showSpinner();
-      this.categoryCrudService.deleteCategory(
-        categoryId,
-        this.authService.getId()!
-      );
-      this.loadCategories();
-      this.spinnerService.hideSpinner();
-      this.notificationService.showNotification(
-        'Expense deleted successfully!',
-        'success'
-      );
-    });
-  }
-
-  editCategory(category: _Category) {
-    this.editingCategory = category.id;
-    this.editedCategory = category.name;
-  }
-
-  saveEditedCategory(categoryId: string) {
-    this.categoryCrudService.updateCategory(
-      this.editedCategory,
-      categoryId,
-      this.authService.getId()!
-    );
-    this.editingCategory = undefined;
-    this.loadCategories();
-  }
-
-  filterCategories() {
-    if (!this.newCategory.trim()) {
-      this.filteredCategories = [...this.categories];
-    } else {
-      this.filteredCategories = this.categories.filter((category) =>
-        category.name.toLowerCase().includes(this.newCategory.toLowerCase())
-      );
-    }
-  }
-
   toggleExpenseForm() {
     this.showExpenseForm = !this.showExpenseForm;
     if (!this.showExpenseForm) {
@@ -777,7 +581,7 @@ export class TrackerComponent implements OnInit {
     this.showWeeklyOverview = !this.showWeeklyOverview;
     this.showExpenseForm = false;
     this.showAnalysisOverview = false;
-    this.loadExpensesForWeek(this.week);
+    // this.loadExpensesForWeek(this.week);
   }
 
   toggleAnalysisOverview() {
@@ -792,97 +596,18 @@ export class TrackerComponent implements OnInit {
     this.sendWeeklyExpensesToGemini();
   }
 
-  // async toggleDayExpenses(day: { date: string; dayName: string }) {
-  //   if (this.expendedDay === day) {
-  //     this.expendedDay = null;
-  //     this.expendedDayExpenses = [];
-  //   } else {
-  //     this.expendedDay = day;
-  //     this.expensesCrudService
-  //       .loadExpensesForUserOnDate(this.authService.getId()!, day.date)
-  //       .subscribe((expenses) => {
-  //         this.expendedDayExpenses = expenses;
-  //       });
-  //     this.cdr.detectChanges();
-  //   }
-  // }
-
-  async toggleDayExpenses(day: DaySpending) {
-    day.isExpanded = !day.isExpanded;
-    if (day.isExpanded && (!day.expenses || day.expenses.length === 0)) {
-      this.expensesCrudService
-        .loadExpensesForUserOnDate(this.authService.getId()!, day.date)
-        .subscribe((expenses) => {
-          day.expenses = expenses;
-          this.cdr.detectChanges();
-        });
-    }
-    this.cdr.detectChanges();
+  async toggleDayExpenses() {
+    // day.isExpanded = !day.isExpanded;
+    // if (day.isExpanded && (!day.expenses || day.expenses.length === 0)) {
+    //   this.expensesCrudService
+    //     .loadExpensesForUserOnDate(this.authService.getId()!, day.date)
+    //     .subscribe((expenses) => {
+    //       day.expenses = expenses;
+    //       this.cdr.detectChanges();
+    //     });
+    // }
+    // this.cdr.detectChanges();
   }
-  //Category
-
-  // async addCategory() {
-  //   if (this.newCategory.trim() === '') return;
-  //   const existingCategory = this.categories.find(
-  //     (cat) => cat.name.toLowerCase() === this.newCategory.toLowerCase()
-  //   );
-  //   if (existingCategory) {
-  //     //alert('Category already exists!');
-  //     return;
-  //   }
-
-  //   const newCategoryId = await this.crudService.addCategory(this.newCategory);
-  //   if (newCategoryId) {
-  //     this.categories.push({
-  //       id: newCategoryId,
-  //       name: this.newCategory,
-  //       isDefault: false,
-  //     });
-  //   }
-  //   this.newCategory = '';
-  //   this.showCategoryPopup = false;
-  // }
-
-  // editCategory(category: Category) {
-  //   if (category.isDefault) {
-  //     //alert("You cannot edit default categories!");
-  //     return;
-  //   }
-  //   this.editingCategory = category.id;
-  //   this.editedCategory = category.name;
-  // }
-
-  // async saveEditedCategory() {
-  //   if (!this.editedCategory.trim()) return;
-  //   const categoryToUpdate = this.categories.find(
-  //     (cat) => cat.id === this.editingCategory
-  //   );
-  //   if (categoryToUpdate && !categoryToUpdate.isDefault) {
-  //     const success = await this.crudService.updateCategory(
-  //       categoryToUpdate.id,
-  //       this.editedCategory,
-  //       categoryToUpdate.isDefault
-  //     );
-  //     if (success) {
-  //       categoryToUpdate.name = this.editedCategory;
-  //     }
-  //   }
-  //   this.editingCategory = null;
-  // }
-
-  // async deleteCategory(category: { id: string; isDefault: boolean }) {
-  //   if (category.isDefault) {
-  //     // alert("You cannot delete default categories!");
-  //     return;
-  //   }
-  //   const success = await this.crudService.deleteCategory(
-  //     category.id,
-  //     category.isDefault
-  //   );
-  //   if (success) {
-  //     this.categories = this.categories.filter((cat) => cat.id !== category.id);
-  //   }
-  // }
 
   displayedWeekStart: string = new Date().toISOString().split('T')[0]; // Track the start of the current displayed week
 
@@ -895,7 +620,7 @@ export class TrackerComponent implements OnInit {
 
     this.displayedWeekStart = firstDayOfWeek.toISOString().split('T')[0];
 
-    this.expenses2 = []; //clear expenses
+    // this.expenses2 = []; //clear expenses
 
     this.loadWeekDays(this.displayedWeekStart);
   }
@@ -908,7 +633,7 @@ export class TrackerComponent implements OnInit {
 
     this.displayedWeekStart = firstDayOfWeek.toISOString().split('T')[0];
 
-    this.expenses2 = []; //clear expenses
+    // this.expenses2 = []; //clear expenses
 
     this.loadWeekDays(this.displayedWeekStart);
   }

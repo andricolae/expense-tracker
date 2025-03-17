@@ -6,8 +6,8 @@ import {
   RouterOutlet,
 } from '@angular/router';
 
-import { HeaderComponent } from './components/header/header.component';
-import { FooterComponent } from './components/footer/footer.component';
+import { HeaderComponent } from './shared/components/header/header.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
 import { CommonModule, NgIf } from '@angular/common';
 import { filter } from 'rxjs';
 

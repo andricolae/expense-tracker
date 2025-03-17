@@ -1,4 +1,4 @@
-<app-popout></app-popout>
+<!-- <app-popout></app-popout> -->
 
 <div class="background-container">
   <app-loading-spinner />
@@ -49,11 +49,9 @@
               *ngFor="let day of week"
               class="tab-button"
               [class.active]="selectedDay === day"
-              (click)="
-                selectedDay = day; loadExpensesForUserOnDate(selectedDay!.date)
-              "
-              [disabled]="isDateInFutureOrPast(day.date)"
+              (click)="selectedDay = day; loadExpenses(selectedDay!.date)"
             >
+              <!-- [disabled]="isDateInFutureOrPast(day.date)" -->
               {{ day.dayName }}
             </button>
           </div>
@@ -126,12 +124,17 @@
                   required
                 >
                   <option value="" disabled selected>Select Category</option>
-                  <option
-                    *ngFor="let category of categories"
-                    [value]="category"
-                  >
-                    {{ category.name }}
-                  </option>
+                  <div *ngFor="let category of categories()">
+                    <option
+                      *ngIf="
+                        category.visible == true ||
+                        category.visible == undefined
+                      "
+                      [value]="category.name"
+                    >
+                      {{ category.name }}
+                    </option>
+                  </div>
                 </select>
               </div>
 
@@ -142,43 +145,49 @@
                     type="text"
                     [(ngModel)]="newCategory"
                     placeholder="Enter new category"
-                    (input)="filterCategories()"
                   />
                   <button class="button" (click)="addCategory()">Add</button>
 
                   <ul class="category-list">
-                    <li *ngFor="let category of filteredCategories">
-                      <span>{{ category.name }}</span>
+                    <div *ngFor="let category of categories()">
+                      <li
+                        *ngIf="
+                          category.visible == true ||
+                          category.visible == undefined
+                        "
+                      >
+                        <span>{{ category.name }}</span>
 
-                      <input
-                        *ngIf="editingCategory === category.id"
-                        type="text"
-                        [(ngModel)]="editedCategory"
-                      />
-
-                      <div class="category-buttons">
-                        <button
-                          class="edit-btn"
-                          *ngIf="editingCategory !== category.id"
-                          (click)="editCategory(category)"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          class="save-btn"
+                        <input
                           *ngIf="editingCategory === category.id"
-                          (click)="saveEditedCategory(category.id!)"
-                        >
-                          Save
-                        </button>
-                        <button
-                          class="delete-btn"
-                          (click)="deleteCategory(category.id!)"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </li>
+                          type="text"
+                          [(ngModel)]="editedCategory"
+                        />
+
+                        <div class="category-buttons">
+                          <button
+                            class="edit-btn"
+                            *ngIf="editingCategory !== category.id"
+                            (click)="editCategory(category)"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            class="save-btn"
+                            *ngIf="editingCategory === category.id"
+                            (click)="saveEditedCategory(category.id!)"
+                          >
+                            Save
+                          </button>
+                          <button
+                            class="delete-btn"
+                            (click)="deleteCategory(category.id!)"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </li>
+                    </div>
                   </ul>
 
                   <button
@@ -217,7 +226,7 @@
           >
             <div class="expense-list">
               <h4>Existing Expenses</h4>
-              <div class="expense-item" *ngFor="let _expense of expenses2">
+              <div class="expense-item" *ngFor="let _expense of expenses()">
                 <div class="expense-info">
                   <span class="expense-name">{{ _expense.name }}</span>
                   <span class="expense-category">{{ _expense.category }}</span>
@@ -239,7 +248,7 @@
             [disabled]="isSaveDisabled"
             class="weekly-overview-button"
             *ngIf="showExpenseForm"
-            (click)="isEditing ? updateExpense2() : addExpenseFromForm()"
+            (click)="isEditing ? updateExpense() : addExpenseFromForm()"
           >
             {{ isEditing ? "Update" : "Save" }}
           </button>
@@ -253,7 +262,7 @@
           </h2>
           }
           <ul class="week-summary">
-            <li
+            <!-- <li
               *ngFor="let day of weeklySpending"
               (click)="toggleDayExpenses(day)"
               class="clickable-day"
@@ -280,7 +289,7 @@
                   No expenses recorded for {{ day.dayName }}
                 </p>
               </div>
-            </li>
+            </li> -->
           </ul>
           <button class="button" (click)="toggleAnalysisOverview()">
             See analysis of your expenses
@@ -311,7 +320,7 @@
         <ng-container *ngIf="showAIExpertiseOverview">
           <h2>AI Expertise</h2>
           <p>
-            {{ weeklyAnalysis }}
+            {{ weeklyAnalysis() }}
           </p>
           <button class="button" (click)="toggleAIExpertiseOverview()">
             Back to Analysis

@@ -7,12 +7,10 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
 })
 export class HomeComponent {
-  constructor(
-    private router: Router
-  ) {}
+  constructor(private router: Router) {}
 
   goToLogin(): void {
     this.router.navigate(['/auth']);
@@ -21,7 +19,6 @@ export class HomeComponent {
   displayedText: string = ''; // Initially empty
 
   displayText(): void {
-    this.displayedText = "Invest in yourself more.";
+    this.displayedText = 'Invest in yourself more.';
   }
-  
 }
