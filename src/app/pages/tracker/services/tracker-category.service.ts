@@ -47,7 +47,6 @@ export class TrackerCategoryService {
           });
 
           this.categoriesMarker = transformedData;
-          console.log(this.categoriesMarker);
 
           this.loadCategories();
         }
@@ -110,7 +109,6 @@ export class TrackerCategoryService {
 
   deleteCategory(categoryId: string) {
     const index = this.findCategoryIndex(categoryId);
-    console.log(index);
 
     if (index < 8) {
       this.updateMarker(index, '1');
@@ -146,6 +144,5 @@ export class TrackerCategoryService {
     }
 
     this.categoriesMarker.marker = markerArray.join('');
-    console.log(this.categoriesMarker.marker);
   }
 }

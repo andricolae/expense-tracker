@@ -1,17 +1,17 @@
-import { inject, Injectable } from '@angular/core';
-import { DaySpending } from '../models/spending.model';
+import { Injectable, inject } from '@angular/core';
 import { ExcelService } from '../../../core/excel/excel.service';
+import { DayExpense } from '../models/spending.model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ExcelExportService {
+export class ExpensesExportService {
   private excelService = inject(ExcelService);
 
-  exportToExcel(spendings: DaySpending[]): void {
+  exportToExcel(spendings: DayExpense[]): void {
     const dataForExcel = spendings.flatMap((day) =>
       day.expenses.map((expense) => ({
-        Date: day.date,
+        Date: day.dateString,
         Day: day.dayName,
         Name: expense.name,
         Category: expense.category,
@@ -19,6 +19,10 @@ export class ExcelExportService {
       }))
     );
 
-    this.excelService.generateExcel(dataForExcel, 'Weekly_Expenses');
+    this.excelService.exportToExcel(
+      dataForExcel,
+      'Weekly_Expenses',
+      'Expenses'
+    );
   }
 }

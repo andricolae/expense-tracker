@@ -44,8 +44,15 @@ export class DaysFunctionsService {
   }
 
   // 🔹 Funcție ajutătoare: conversie "DD-MM-YYYY" -> Date object
-  private convertToDate(dateString: string): Date {
+  convertToDate(dateString: string): Date {
     const [day, month, year] = dateString.split('-').map(Number);
     return new Date(year, month - 1, day);
+  }
+
+  convertDateToString(date: Date): string {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
   }
 }

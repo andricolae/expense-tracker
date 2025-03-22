@@ -49,4 +49,43 @@ export class TrackerExpensesService {
         this.loadUserExpensesByDate(day);
       });
   }
+
+  async loadUserExpensesByInterval(
+    startDate: Date,
+    endDate: Date
+  ): Promise<(Expense & { date: string })[]> {
+    const expenses: (Expense & { date: string })[] = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      const dayKey = this.convertDateToDDMMYYYY(currentDate);
+
+      const dayExpenses = await this.expensesService
+        .getExpensesOfUserByDate(this.userId, dayKey)
+        .toPromise();
+
+      if (dayExpenses) {
+        // adaugi explicit data aici, deoarece Firebase nu o salvează în obiect
+        const dayExpensesWithDate = dayExpenses.map((expense) => ({
+          ...expense,
+          date: dayKey,
+        }));
+
+        expenses.push(...dayExpensesWithDate);
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    this.expenses.set(expenses);
+    return expenses;
+  }
+
+  // Conversie Date în DD-MM-YYYY pentru a corespunde cheilor Firebase
+  private convertDateToDDMMYYYY(date: Date): string {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
 }

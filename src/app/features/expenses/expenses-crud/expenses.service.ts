@@ -53,8 +53,8 @@ export class ExpensesService {
     userId: string,
     startDate: string,
     endDate: string
-  ): Promise<Expense[]> {
-    let expenses: Expense[] = [];
+  ): Promise<(Expense & { date: string })[]> {
+    let expenses: (Expense & { date: string })[] = [];
     const start = new Date(startDate);
     const end = new Date(endDate);
 
@@ -63,10 +63,21 @@ export class ExpensesService {
       const dayExpenses = await this.dbService
         .getAll(`/user/${userId}/expenses/${dateStr}`)
         .toPromise();
-      expenses = expenses.concat(dayExpenses!);
+
+      const dayExpensesWithDate = (dayExpenses || []).map((expense) => ({
+        ...expense,
+        date: this.convertDateToDDMMYYYY(dateStr),
+      }));
+
+      expenses = expenses.concat(dayExpensesWithDate);
       start.setDate(start.getDate() + 1);
     }
 
     return expenses;
+  }
+
+  private convertDateToDDMMYYYY(dateIso: string): string {
+    const [year, month, day] = dateIso.split('-');
+    return `${day}-${month}-${year}`;
   }
 }

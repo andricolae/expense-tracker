@@ -5,12 +5,24 @@ export interface Expense {
   category: string;
 }
 
-export interface DaySpending {
-  date: string;
+export interface DayExpense {
   dayName: string;
-  expenses: Expense[];
+  dateString: string;
   total: number;
-  isExpanded?: boolean;
+  expenses: Expense[];
+  isExpanded: boolean;
+}
+
+export interface ExpenseWithDate extends Expense {
+  date: string;
+}
+
+export interface DaySpending {
+  dayName: string;
+  dateString: string;
+  total: number;
+  expenses: ExpenseWithDate[];
+  isExpanded: boolean;
 }
 
 export interface WeeklySpendings {

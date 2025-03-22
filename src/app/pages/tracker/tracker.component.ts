@@ -10,9 +10,18 @@ import { AuthService } from '../../core/authentication/auth.service';
 import { ChatbotComponent } from '../../features/chatbot/chatbot.component';
 import { ExpensesAnalysisService } from '../../features/expenses/expenses-analysis/expenses-analysis.service';
 import { TrackerCategoryService } from './services/tracker-category.service';
-import { Expense } from '../../features/expenses/models/spending.model';
+import {
+  DayExpense,
+  DaySpending,
+  Expense,
+  ExpenseWithDate,
+} from '../../features/expenses/models/spending.model';
 import { TrackerExpensesService } from './services/tracker-expenses.service';
 import { NotificationComponent } from '../../shared/components/notification/notification.component';
+import { ExpensesExtractFromImageService } from '../../features/expenses/expenses-extract/expenses-extract-from-image.service';
+import { finalize } from 'rxjs';
+import { DaysFunctionsService } from '../../core/utils/days-functions.service';
+import { ExpensesExportService } from '../../features/expenses/expenses-export/excel-export.service';
 
 @Component({
   selector: 'app-tracker',
@@ -46,11 +55,14 @@ export class TrackerComponent implements OnInit {
     this.trackerCategoriesService.deleteCategory(categoryId);
   }
 
-  editCategory(category: { id: string; name: string }) {}
+  editCategory(category: { id: string; name: string }) {
+    // this.editingCategory = category.id;
+    // this.editedCategory = category.name; ??????????????????
+  }
 
   saveEditedCategory(categoryId: string) {}
 
-  //EXPENSES V2
+  //EXPENSES V2  -------------------------------------------------------
 
   private trackerExpensesService = inject(TrackerExpensesService);
   expenses = this.trackerExpensesService.expenses;
@@ -59,15 +71,15 @@ export class TrackerComponent implements OnInit {
     this.trackerExpensesService.loadUserExpensesByDate(date);
   }
 
-  addExpense(newExpense: Expense) {
-    this.trackerExpensesService.addExpense('2025-03-10', newExpense);
+  addExpense(newExpense: Expense, day: string) {
+    this.trackerExpensesService.addExpense(day, newExpense);
   }
 
-  updateExpense(): void {
+  updateExpense(day: string): void {
     const updatedExpense = this.updatedItem();
     this.resetSavingForm();
     this.trackerExpensesService.editExpense(
-      '2025-03-10',
+      day,
       updatedExpense.id!,
       updatedExpense
     );
@@ -75,6 +87,103 @@ export class TrackerComponent implements OnInit {
 
   private delete(day: string, idExpense: string) {
     this.trackerExpensesService.deleteExpense(day, idExpense);
+  }
+
+  //EXTRACT FROM IMAGE V2  -------------------------------------------------------
+
+  private expensesExtractService = inject(ExpensesExtractFromImageService);
+
+  imageUrl: string | ArrayBuffer | null = null;
+  extractedText: string = '';
+  selectedFile: File | null = null;
+  loading: boolean = false;
+  extractedExpenses: any = null;
+
+  onFileSelected(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+      this.selectedFile = target.files[0];
+
+      const reader = new FileReader();
+      reader.onload = (e) => (this.imageUrl = e.target!.result);
+      reader.readAsDataURL(this.selectedFile);
+    }
+  }
+
+  processImage(): void {
+    if (!this.selectedFile) {
+      console.error('No file selected!');
+      return;
+    }
+
+    this.loading = true;
+    this.expensesExtractService
+      .extractExpensesFromImage(this.selectedFile, this.categories())
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (expenses) => {
+          console.log('Expenses extracted:', expenses);
+          this.extractedExpenses = expenses;
+          expenses.forEach((expense) => {
+            this.addExpense(
+              expense,
+              this.daysFunctions.convertDateToString(
+                this.getDayDate(this.offset!)
+              )
+            );
+          });
+        },
+        error: (error) => {
+          console.error('Error extracting expenses:', error);
+        },
+      });
+  }
+
+  //DAYS ----------------------------------------------------------
+
+  daysFunctions = inject(DaysFunctionsService);
+  currentWeekInterval!: { startDate: Date; endDate: Date };
+  selectedDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1; // default ziua curentă selectată (luni = 0)
+  offset?: number;
+
+  getDayDate(offset: number): Date {
+    const date = new Date(this.currentWeekInterval.startDate);
+    date.setDate(date.getDate() + offset);
+    return date;
+  }
+
+  isCurrentWeek(): boolean {
+    return !this.daysFunctions.isDateBeforeToday(
+      this.daysFunctions.convertDateToString(this.currentWeekInterval.endDate)
+    );
+  }
+
+  goToPreviousWeek(): void {
+    const previousWeekDate = new Date(this.currentWeekInterval.startDate);
+    previousWeekDate.setDate(previousWeekDate.getDate() - 7);
+
+    const dateString = this.daysFunctions.convertDateToString(previousWeekDate);
+    this.currentWeekInterval = this.daysFunctions.getWeekInterval(dateString);
+
+    // Resetează ziua selectată pe prima zi (luni)
+    this.selectedDayIndex = 0;
+    this.loadExpenses(
+      this.daysFunctions.convertDateToString(this.currentWeekInterval.startDate)
+    );
+  }
+
+  goToNextWeek(): void {
+    const nextWeekDate = new Date(this.currentWeekInterval.startDate);
+    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+
+    const dateString = this.daysFunctions.convertDateToString(nextWeekDate);
+    this.currentWeekInterval = this.daysFunctions.getWeekInterval(dateString);
+
+    // Resetează ziua selectată pe prima zi (luni)
+    this.selectedDayIndex = 0;
+    this.loadExpenses(
+      this.daysFunctions.convertDateToString(this.currentWeekInterval.startDate)
+    );
   }
 
   //Services---------------------------------------------------------
@@ -88,20 +197,25 @@ export class TrackerComponent implements OnInit {
 
   //AICIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 
-  ngOnInit() {
+  async ngOnInit() {
+    const today = new Date();
+    this.currentWeekInterval = this.daysFunctions.getWeekInterval(
+      this.daysFunctions.convertDateToString(today)
+    );
+
     this.loadCategories();
-    this.loadExpenses('2025-03-10');
+    this.loadExpenses(this.daysFunctions.convertDateToString(today));
 
     /////////////////////////////
     // this.spinnerService.showSpinner();
     // this.loadTodayExpenses();
-    this.loadWeekDays();
-    // this.loadExpensesForWeek(this.week);
-    const { startDate, endDate } = this.getWeekInterval(
-      new Date().toISOString().split('T')[0]
-    );
-    this.currentWeekStart = startDate.toISOString().split('T')[0];
-    this.currentWeekEnd = endDate.toISOString().split('T')[0];
+    // this.loadWeekDays();
+    // // this.loadExpensesForWeek(this.week);
+    // const { startDate, endDate } = this.getWeekInterval(
+    //   new Date().toISOString().split('T')[0]
+    // );
+    // this.currentWeekStart = startDate.toISOString().split('T')[0];
+    // this.currentWeekEnd = endDate.toISOString().split('T')[0];
 
     // this.categories = this.trackerCategoriesService.categories;
     // this.budgetService
@@ -126,28 +240,13 @@ export class TrackerComponent implements OnInit {
 
   //Excel-------------------------------------------------------------
 
-  exportToExcel(): void {}
+  private expensesExportService = inject(ExpensesExportService);
 
-  //------------------------------------------------------------------
-
-  //Extracting from photo----------------------------------------------------------
-
-  imageUrl: string | ArrayBuffer | null = null;
-  extractedText: string = '';
-  selectedFile: File | null = null;
-
-  onFileSelected(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target.files && target.files.length > 0) {
-      this.selectedFile = target.files[0];
-
-      const reader = new FileReader();
-      reader.onload = (e) => (this.imageUrl = e.target!.result);
-      reader.readAsDataURL(this.selectedFile);
-    }
+  exportWeeklyData(): void {
+    this.expensesExportService.exportToExcel(this.weeklySpending);
   }
 
-  processImage(): void {}
+  //------------------------------------------------------------------
 
   //------------------------------------------------------------------
 
@@ -157,101 +256,9 @@ export class TrackerComponent implements OnInit {
   weeklyAnalysis = this.expensesAnalysisService.weeklyAnalysis;
 
   sendWeeklyExpensesToGemini(): void {
-    // this.expensesAnalysisService.sendWeeklyExpensesToGemini(
-    //   this.weeklySpending
-    // );
-  }
-
-  //------------------------------------------------------------------
-
-  //UI Expenses--------------------------------------------------------
-
-  selectedDay: { date: string; dayName: string } | undefined = undefined;
-
-  week: { date: string; dayName: string }[] = [];
-
-  // 1️⃣ Funcție existentă: intervalul complet al săptămânii pe baza unei date
-  getWeekInterval(dateString: string): { startDate: Date; endDate: Date } {
-    const date = new Date(dateString);
-
-    const dayOfWeek = date.getDay();
-    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // dacă e duminică, ne întoarcem 6 zile
-    const daysToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek; // până la final de săptămână
-
-    const monday = new Date(date);
-    monday.setDate(date.getDate() - daysToMonday);
-
-    const sunday = new Date(date);
-    sunday.setDate(date.getDate() + daysToSunday);
-
-    return { startDate: monday, endDate: sunday };
-  }
-
-  // 2️⃣ Funcție nouă: vector cu 7 zile - nume + dată (Luni-Duminică)
-  getCurrentWeekWithDays(
-    startDate: string = new Date().toISOString().split('T')[0]
-  ): { date: string; dayName: string }[] {
-    const date = new Date(startDate);
-
-    // Get the first day of the week (Monday)
-    const dayOfWeek = date.getDay();
-    const monday = new Date(date);
-    if (dayOfWeek === 0) {
-      // If today is Sunday, move back 6 days to Monday
-      monday.setDate(date.getDate() - 6);
-    } else {
-      // Otherwise, move back (dayOfWeek - 1) days
-      monday.setDate(date.getDate() - (dayOfWeek - 1));
-    }
-
-    // Generate the week (Monday - Sunday)
-    const week: { date: string; dayName: string }[] = [];
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(monday);
-      currentDate.setDate(monday.getDate() + i);
-
-      week.push({
-        date: currentDate.toISOString().split('T')[0], // Format: YYYY-MM-DD
-        dayName: this.getDayOfWeek(currentDate.toISOString().split('T')[0]),
-      });
-    }
-
-    return week;
-  }
-
-  // Helper: ziua săptămânii pentru o dată dată (folosită și în ambele metode)
-  private getDayOfWeek(dateString: string): string {
-    const daysOfWeek = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    ];
-
-    const date = new Date(dateString);
-    return daysOfWeek[date.getDay()];
-  }
-
-  isDateInFutureOrPast(dateString: string): boolean {
-    const today = new Date();
-    const inputDate = new Date(dateString);
-    return inputDate > today; // true = viitor, false = trecut sau azi
-  }
-
-  findDayByDate(date: string): { date: string; dayName: string } | undefined {
-    return this.week.find((day) => day.date === date);
-  }
-
-  //BOASSSSSSSSSS
-  loadWeekDays(startDate: string = new Date().toISOString().split('T')[0]) {
-    this.displayedWeekStart = startDate;
-    this.week = this.getCurrentWeekWithDays(startDate);
-    this.selectedDay = this.findDayByDate(startDate);
-    // this.expenses2 = [];
-    // this.loadExpensesForWeek(this.week); // Load expenses for the selected week
+    this.expensesAnalysisService.sendWeeklyExpensesToGemini(
+      this.weeklySpending
+    );
   }
 
   //------------------------------------------------------------------
@@ -274,7 +281,7 @@ export class TrackerComponent implements OnInit {
     this.showExpenseForm = false;
   }
 
-  addExpenseFromForm(): void {
+  addExpenseFromForm(day: string): void {
     if (!this.selectedCategory || !this.expenseName || !this.expenseAmount) {
       this.notificationService.showNotification(
         'Please fill out all fields.',
@@ -285,40 +292,7 @@ export class TrackerComponent implements OnInit {
 
     const newExpense = this.createNewItem();
     this.resetSavingForm();
-    this.addExpense(newExpense);
-  }
-
-  //READ
-
-  // weeklySpending: DaySpending[] = [];
-
-  urBudget = -1;
-  getWeeklyTotal(): number {
-    // this.budgetService
-    //   .getBudgetForUserByDate(this.authService.getId()!, this.currentWeekEnd)
-    //   .subscribe((resp) => {
-    //     if (resp != undefined && resp != null) {
-    //       this.urBudget = resp!.weeklyBudget;
-    //     }
-    //   });
-    // return this.weeklySpending.reduce((sum, day) => sum + day.total, 0);
-    return 0;
-  }
-
-  getWeeklyCategoryTotals(): { category: string; total: number }[] {
-    const categoryMap = new Map<string, number>();
-
-    // for (const day of this.weeklySpending) {
-    //   for (const expense of day.expenses) {
-    //     const currentAmount = categoryMap.get(expense.category) || 0;
-    //     categoryMap.set(expense.category, currentAmount + expense.amount);
-    //   }
-    // }
-
-    return Array.from(categoryMap.entries()).map(([category, total]) => ({
-      category,
-      total,
-    }));
+    this.addExpense(newExpense, day);
   }
 
   //UPDATE
@@ -365,35 +339,6 @@ export class TrackerComponent implements OnInit {
         'success'
       );
     });
-  }
-
-  //--------------------------------------------------------------------
-
-  //UI -----------------------------------------------------------------
-
-  onKeyPress(event: KeyboardEvent): boolean {
-    const charCode = event.which || event.keyCode;
-    const inputValue = (event.target as HTMLInputElement).value;
-
-    if (
-      [46, 8, 9, 27, 13].indexOf(charCode) !== -1 ||
-      (charCode === 65 && event.ctrlKey === true) ||
-      (charCode === 67 && event.ctrlKey === true) ||
-      (charCode === 86 && event.ctrlKey === true) ||
-      (charCode === 88 && event.ctrlKey === true)
-    ) {
-      return true;
-    }
-
-    if (charCode === 46 && inputValue.includes('.')) {
-      return false;
-    }
-
-    if (charCode === 46 || (charCode >= 48 && charCode <= 57)) {
-      return true;
-    }
-
-    return false;
   }
 
   validateAmount(event: Event): void {
@@ -494,11 +439,63 @@ export class TrackerComponent implements OnInit {
     }
   }
 
-  toggleWeeklyOverview() {
+  weeklyExpenses: ExpenseWithDate[] = [];
+  weeklySpending: DaySpending[] = [];
+
+  async toggleWeeklyOverview() {
     this.showWeeklyOverview = !this.showWeeklyOverview;
     this.showExpenseForm = false;
     this.showAnalysisOverview = false;
-    // this.loadExpensesForWeek(this.week);
+
+    if (this.showWeeklyOverview) {
+      const todayString = this.daysFunctions.convertDateToString(new Date());
+      const { startDate, endDate } =
+        this.daysFunctions.getWeekInterval(todayString);
+
+      this.weeklyExpenses =
+        await this.trackerExpensesService.loadUserExpensesByInterval(
+          startDate,
+          endDate
+        );
+
+      this.populateWeeklySpending(startDate);
+      this.populateCategoryTotals();
+    }
+  }
+
+  populateWeeklySpending(startDate: Date): void {
+    this.weeklySpending = [];
+
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(currentDate.getDate() + i);
+
+      const dateString = this.daysFunctions.convertDateToString(currentDate);
+      const dayName = this.daysFunctions.getDayName(dateString);
+
+      const dayExpenses = this.weeklyExpenses.filter(
+        (expense) => expense.date === dateString
+      );
+
+      const total = dayExpenses.reduce(
+        (sum, expense) => sum + expense.amount,
+        0
+      );
+
+      this.weeklySpending.push({
+        dayName,
+        dateString,
+        total,
+        expenses: dayExpenses,
+        isExpanded: false,
+      });
+    }
+
+    console.log('Weekly spending by day:', this.weeklySpending);
+  }
+
+  toggleDayExpenses(day: any): void {
+    day.isExpanded = !day.isExpanded;
   }
 
   toggleAnalysisOverview() {
@@ -513,63 +510,29 @@ export class TrackerComponent implements OnInit {
     this.sendWeeklyExpensesToGemini();
   }
 
-  async toggleDayExpenses() {
-    // day.isExpanded = !day.isExpanded;
-    // if (day.isExpanded && (!day.expenses || day.expenses.length === 0)) {
-    //   this.expensesCrudService
-    //     .loadExpensesForUserOnDate(this.authService.getId()!, day.date)
-    //     .subscribe((expenses) => {
-    //       day.expenses = expenses;
-    //       this.cdr.detectChanges();
-    //     });
-    // }
-    // this.cdr.detectChanges();
-  }
+  //pie
+  categoryTotals: { category: string; total: number }[] = [];
 
-  displayedWeekStart: string = new Date().toISOString().split('T')[0]; // Track the start of the current displayed week
+  populateCategoryTotals(): void {
+    const totalsByCategory: { [key: string]: number } = {};
 
-  currentWeekStart: string = ''; // Start date of the current week
-  currentWeekEnd: string = ''; // End date of the current week
+    for (const expense of this.weeklyExpenses) {
+      const category = expense.category;
 
-  goToPreviousWeek() {
-    const firstDayOfWeek = new Date(this.displayedWeekStart);
-    firstDayOfWeek.setDate(firstDayOfWeek.getDate() - 7); // Move back a week
+      if (!totalsByCategory[category]) {
+        totalsByCategory[category] = 0;
+      }
 
-    this.displayedWeekStart = firstDayOfWeek.toISOString().split('T')[0];
+      totalsByCategory[category] += expense.amount;
+    }
 
-    // this.expenses2 = []; //clear expenses
-
-    this.loadWeekDays(this.displayedWeekStart);
-  }
-
-  goToNextWeek() {
-    if (this.isCurrentWeek()) return; // Prevent moving past the current week
-
-    const firstDayOfWeek = new Date(this.displayedWeekStart);
-    firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 7); // Move forward a week
-
-    this.displayedWeekStart = firstDayOfWeek.toISOString().split('T')[0];
-
-    // this.expenses2 = []; //clear expenses
-
-    this.loadWeekDays(this.displayedWeekStart);
-  }
-
-  isCurrentWeek(): boolean {
-    return this.week[0].date === this.currentWeekStart;
-  }
-
-  getFormattedWeekRange(): string {
-    const { startDate, endDate } = this.getWeekInterval(
-      this.displayedWeekStart
+    this.categoryTotals = Object.entries(totalsByCategory).map(
+      ([category, total]) => ({
+        category,
+        total,
+      })
     );
 
-    const formatDate = (date: Date): string => {
-      const day = date.getDate().toString().padStart(2, '0');
-      const monthAbbr = date.toLocaleString('en-US', { month: 'short' });
-      return `${day}.${monthAbbr}`;
-    };
-
-    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    console.log('Category totals:', this.categoryTotals);
   }
 }

@@ -1,6 +1,6 @@
 import { inject, Injectable, OnInit, signal } from '@angular/core';
 import { GeminiService } from '../../../core/google/gemini.service';
-import { DaySpending } from '../models/spending.model';
+import { DayExpense } from '../models/spending.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +15,7 @@ export class ExpensesAnalysisService implements OnInit {
     this.getPromt();
   }
 
-  sendWeeklyExpensesToGemini(spendings: DaySpending[]) {
+  sendWeeklyExpensesToGemini(spendings: DayExpense[]) {
     const expensesText = this.convertSpendingsToString(spendings);
     this.analysisForWeeklyExpenses(expensesText);
   }
@@ -32,7 +32,7 @@ export class ExpensesAnalysisService implements OnInit {
     return `${message}. ${this.promt}`;
   }
 
-  private convertSpendingsToString(spendings: DaySpending[]) {
+  private convertSpendingsToString(spendings: DayExpense[]) {
     const allExpenses = spendings.flatMap((day) => day.expenses);
     const expensesText = allExpenses
       .map((exp) => `${exp.category} - ${exp.name}: ${exp.amount} RON`)
